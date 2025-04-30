@@ -1,32 +1,44 @@
 package com.example.demo.entity;
 
+import org.springframework.stereotype.Component;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name="users")
+@Component
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "HotelID")
+    private int id;
 
-    private String name;
+    @Column(name = "full_name")
+    private String full_name;
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "user_name")
+    private String user_name;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "phone")
+    private String phone;
 
-    public String getName() {
-        return name;
-    }
+    @Column(name = "email")
+    private String email;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Column(name = "user_password")
+    private String user_password;
+
 }
