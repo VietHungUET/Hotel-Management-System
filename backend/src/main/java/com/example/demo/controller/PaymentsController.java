@@ -1,4 +1,4 @@
-package com.example.HotelManager.Controller;
+package com.example.demo.controller;
 
 import com.example.demo.entity.PaymentEntity;
 import com.example.demo.service.PaymentService;

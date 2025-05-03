@@ -25,4 +25,7 @@ public class RoomTypeEntity {
     private Double overtimePay;
 
     private int capacity;
+
+    @Column(name ="price", nullable = false)
+    private int price;
 }

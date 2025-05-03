@@ -61,7 +61,8 @@ function createData(
   dayRate,
   dailyRate,
   overtimePay,
-  capacity
+  capacity,
+  price
 ) {
   return {
     typeId,
@@ -72,6 +73,7 @@ function createData(
     dailyRate,
     overtimePay,
     capacity,
+    price
   };
 }
 
@@ -90,6 +92,7 @@ function RoomType({ typeList }) {
     dailyRate: "",
     overtimePay: "",
     capacity: "",
+    price:"",
   };
 
   const [formState, setFormState] = React.useState(initialFormState);
@@ -109,7 +112,8 @@ function RoomType({ typeList }) {
           item.dayRate,
           item.dailyRate,
           item.overtimePay,
-          item.capacity
+          item.capacity,
+          item.price
         )
       )
     );
@@ -166,6 +170,7 @@ function RoomType({ typeList }) {
       dailyRate,
       overtimePay,
       capacity,
+      price,
     } = formState;
 
     if (
@@ -175,7 +180,8 @@ function RoomType({ typeList }) {
       !dayRate ||
       !dailyRate ||
       !overtimePay ||
-      !capacity
+      !capacity ||
+      !price
     ) {
       alert("Please provide enough information");
       return;
@@ -185,27 +191,35 @@ function RoomType({ typeList }) {
       rows.length > 0 ? Math.max(...rows.map((row) => row.typeId)) + 1 : 1;
 
     const newData = {
-      typeId: selectedRow ? selectedRow.typeId : newID,
       name,
       description,
       nightRate: parseFloat(nightRate),
       dayRate: parseFloat(dayRate),
+      nightRate: parseFloat(nightRate),
       dailyRate: parseFloat(dailyRate),
       overtimePay: parseFloat(overtimePay),
       capacity: parseInt(capacity),
+      price: parseInt(price),
     };
 
-    console.log(newData);
+     const displayData = {
+           ...newData,
+           typeId:
+             rows.length > 0 ? Math.max(...rows.map((row) => row.typeId)) + 1 : 1,
+         };
+//     console.log(newData);
+
+
     try {
       if (selectedRow !== null) {
         setRows((prevRows) =>
           prevRows.map((row) =>
-            row.typeId === selectedRow.typeId ? newData : row
+            row.typeId === selectedRow.typeId ? { ...newData, typeId: selectedRow.typeId } : row
           )
         );
         await userApi.updateType(selectedRow.typeId, newData);
       } else {
-        setRows((prevRows) => [...prevRows, newData]);
+        setRows((prevRows) => [...prevRows, displayData]);
         await userApi.addType(newData);
       }
     } catch (error) {
@@ -226,6 +240,7 @@ function RoomType({ typeList }) {
         dailyRate: selectedRow.dailyRate,
         overtimePay: selectedRow.overtimePay,
         capacity: selectedRow.capacity,
+        price: selectedRow.price,
       });
       setOpenDialog(true);
     }
@@ -268,6 +283,7 @@ function RoomType({ typeList }) {
               <StyledTableCell>ID</StyledTableCell>
               <StyledTableCell>Name</StyledTableCell>
               <StyledTableCell>Description</StyledTableCell>
+              <StyledTableCell align="right">Price</StyledTableCell>
               <StyledTableCell align="right">Day Rate</StyledTableCell>
               <StyledTableCell align="right">Night Rate</StyledTableCell>
               <StyledTableCell align="right">Daily Rate</StyledTableCell>
@@ -285,6 +301,7 @@ function RoomType({ typeList }) {
                   {row.name}
                 </StyledTableCell>
                 <StyledTableCell>{row.description}</StyledTableCell>
+                <StyledTableCell align="right">{row.price}</StyledTableCell>
                 <StyledTableCell align="right">{row.dayRate}</StyledTableCell>
                 <StyledTableCell align="right">{row.nightRate}</StyledTableCell>
                 <StyledTableCell align="right">{row.dailyRate}</StyledTableCell>
@@ -385,6 +402,19 @@ function RoomType({ typeList }) {
                 onChange={handleInputChange}
               />
             </FormControl>
+            <FormControl fullWidth sx={{ m: 1 }}>
+                                      <InputLabel htmlFor="price">Price</InputLabel>
+                                      <OutlinedInput
+                                        id="price"
+                                        startAdornment={
+                                          <InputAdornment position="start">$</InputAdornment>
+                                        }
+                                        label="Price"
+                                        value={formState.price}
+                                        onChange={handleInputChange}
+                                        type="number"
+                                      />
+             </FormControl>
             <TextField
               required
               id="capacity"
