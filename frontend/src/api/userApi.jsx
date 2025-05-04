@@ -78,10 +78,11 @@ const userApi = {
       phone: value,
     });
   },
-  getValidCode({ verificationCode }) {
+  getValidCode({ verificationCode,user }) {
     const url = "register/validation";
     return axiosClient.post(url, {
-      userInput: verificationCode,
+      validationCode: verificationCode,
+      user: user
     });
   },
 

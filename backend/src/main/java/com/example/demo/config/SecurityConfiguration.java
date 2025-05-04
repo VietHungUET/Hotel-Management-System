@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -50,20 +51,20 @@ public class SecurityConfiguration {
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/reciptionist/**").hasAnyRole("ADMIN", "RECEPTIONIST")
+                        .requestMatchers("/receptionist/**").hasAnyRole("ADMIN", "RECEPTIONIST")
                         .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().permitAll()
 
                 )
-                .formLogin(form -> form.loginPage("/login").permitAll())
                 .logout((logout) -> logout
                         .logoutUrl("/logout") // Định nghĩa URL để logout
-                        .logoutSuccessUrl("/login?logout") // URL sau khi logout thành công
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpStatus.OK.value()); // Trả về 200 OK sau khi logout
+                        })
                         .invalidateHttpSession(true) // Vô hiệu hóa phiên HTTP sau khi logout
                         .deleteCookies("JSESSIONID")
                 )
-                .httpBasic(Customizer.withDefaults());
-        http
+                .httpBasic(httpBasic -> httpBasic.disable())
                 .securityContext((securityContext) -> securityContext
                         .securityContextRepository(securityContextRepository())
                 );

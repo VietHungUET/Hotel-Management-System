@@ -13,9 +13,20 @@ const Verification = () => {
     // Add your verification logic here
     e.preventDefault();
     try {
-      const response = await userApi.getValidCode({ verificationCode });
+       const pendingUser = JSON.parse(localStorage.getItem("pendingUser")) || {};
+            if (!pendingUser.user_name) {
+              throw new Error("User information not found. Please register again.");
+            }
+      console.log(verificationCode);
+      const response = await userApi.getValidCode({
+              verificationCode: verificationCode.trim(),
+              user: pendingUser
+            });
+
       console.log("response: " + response);
       alert("Đăng ký tài khoản thành công!");
+      localStorage.removeItem("pendingUser");
+      localStorage.removeItem("validationCode");
       navigate("/login");
     } catch (error) {
       alert("Mã xác nhận không chính xác");

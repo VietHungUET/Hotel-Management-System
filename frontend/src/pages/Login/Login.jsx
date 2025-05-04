@@ -28,21 +28,19 @@ const Login = ({ session, setSession }) => {
     };
 
     const handleOnLogin = async(e) => {
-        navigate("/main");
-        // tạm thời comment đoạn xác thực login
-        // e.preventDefault();
-        // const response = await userApi.getLogin({username, password});
-        // if(response ) {
-        //     const sessionData = {
-        //         Username: response.username,
-        //         Role: response.role,
-        //         SessionId: response.sessionId
-        //     };
-        //     setSession(sessionData); 
-        //     navigate("/main");
-        // } else {
-        //     alert("Login failed");
-        // }
+        e.preventDefault();
+        const response = await userApi.getLogin({username, password});
+        if(response ) {
+            const sessionData = {
+                Username: response.username,
+                Role: response.role,
+                SessionId: response.sessionId
+            };
+            setSession(sessionData);
+            navigate("/main");
+        } else {
+            alert("Login failed");
+        }
     };
 
     const handleOnSignUp = async (e) => {
@@ -50,6 +48,14 @@ const Login = ({ session, setSession }) => {
         try {
             const response = await userApi.getSignUp({ username, password, email, fullname, value });
             console.log("response:", response);
+             const pendingUser = {
+                            user_name: username,
+                            user_password: password,
+                            full_name: fullname,
+                            email,
+                            phone: value
+                        };
+                        localStorage.setItem("pendingUser", JSON.stringify(pendingUser));
             navigate("/verification");
         } catch (error) {
             alert("Invalid registration information.");

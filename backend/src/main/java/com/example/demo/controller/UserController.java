@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.util.HashMap;
 
+import com.example.demo.entity.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,48 +28,88 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	private final EmailSenderService emailService;
-	private final UserRepository userRepo;
-	private final UserAccountRepository userAccRepo;
+//	private final EmailSenderService emailService;
+//	private final UserRepository userRepo;
+//	private final UserAccountRepository userAccRepo;
 
-	private HashMap<String, User> check_valid = new HashMap<>();
+//	private HashMap<String, User> check_valid = new HashMap<>();
 
-	@Autowired
-	public UserController(EmailSenderService emailService, UserRepository userRepo, UserAccountRepository userAccRepo) {
-		this.emailService = emailService;
-		this.userRepo = userRepo;
-		this.userAccRepo = userAccRepo;
-	}
+//	@Autowired
+//	public UserController(EmailSenderService emailService, UserRepository userRepo, UserAccountRepository userAccRepo) {
+//		this.emailService = emailService;
+//		this.userRepo = userRepo;
+//		this.userAccRepo = userAccRepo;
+//	}
 
-	@PostMapping(value = "/register")
-	public ResponseEntity<?> createUser(@RequestBody User userRequest) {
-		
-		if (userService.check_existed(userRequest.getUser_name())) {
-			System.out.println(userRequest.getUser_name());
-			
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("Tên người dùng đã tồn tại");
+//	@PostMapping(value = "/register")
+//	public ResponseEntity<?> register(@RequestBody User userRequest) {
+//
+//		if (userService.check_existed(userRequest.getUser_name())) {
+//			System.out.println(userRequest.getUser_name());
+//
+//			return ResponseEntity.status(HttpStatus.CONFLICT).body("Tên người dùng đã tồn tại");
+//		}
+//		/*
+//		String uuid = emailService.sendAuthenticationEmail(userRequest.getEmail());
+//		check_valid.put("1", userRequest);
+//		System.out.println("uuid:" + uuid);
+//		*/
+//		userService.saveDetails(userRequest);
+//		return ResponseEntity.status(HttpStatus.OK).body("Vui lòng kiểm tra email của bạn");
+//	}
+
+	@PostMapping(value="/register")
+	public ResponseEntity<?> register(@RequestBody User user) {
+		try {
+			String validationCode = userService.initiateRegistration(user);
+			return ResponseEntity.ok("Validation code sent to email. Code: " + validationCode);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
-		/*
-		String uuid = emailService.sendAuthenticationEmail(userRequest.getEmail());
-		check_valid.put("1", userRequest);
-		System.out.println("uuid:" + uuid);
-		*/
-		userService.saveDetails(userRequest);
-		return ResponseEntity.status(HttpStatus.OK).body("Vui lòng kiểm tra email của bạn");
 	}
 
-	@PostMapping(value = "/register/validation")
-	public ResponseEntity<?> validation(@RequestBody UserInput user_input) {
-		String input = user_input.userInput();
-		System.out.println("user_input:" + input);
-		if (check_valid.containsKey(input)) {
-			User u = check_valid.get(input);
-			check_valid.remove(input);
-			userService.saveDetails(u);
-			return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký tài khoản thành công");
+	@PostMapping(value="/register/validation")
+	public ResponseEntity<?> validateRegistration(@RequestBody ValidationRequest request ) {
+		try {
+			User registeredUser = userService.completeRegistration(request.getValidationCode(), request.getUser());
+			return ResponseEntity.status(HttpStatus.CREATED).body("Registration successful. User ID: " + registeredUser.getId());
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mã xác thực không tồn tại");
 	}
+
+//	@PostMapping("/manager/add_account")
+//	public ResponseEntity<?> addAccount(@RequestBody UserService.AddAccount userInput, Authentication auth) {
+//		try {
+//			if (!auth.getAuthorities().contains(new GrantedAuthority() {
+//				@Override
+//				public String getAuthority() {
+//					return "MANAGER";
+//				}
+//			})) {
+//				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only managers can add accounts");
+//			}
+//			UserAccount account = userService.addAccount(userInput.userName(), userInput.password(), userInput.active(),
+//					userInput.role(), userInput.hotelId());
+//			return ResponseEntity.status(HttpStatus.CREATED).body("Account created for username: " + account.getUserName());
+//		} catch (RuntimeException e) {
+//			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+//		}
+//	}
+
+
+//	@PostMapping(value = "/register/validation")
+//	public ResponseEntity<?> validation(@RequestBody UserInput user_input) {
+//		String input = user_input.userInput();
+//		System.out.println("user_input:" + input);
+//		if (check_valid.containsKey(input)) {
+//			User u = check_valid.get(input);
+//			check_valid.remove(input);
+//			userService.saveDetails(u);
+//			return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký tài khoản thành công");
+//		}
+//		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mã xác thực không tồn tại");
+//	}
 	
 	/*
 	//MANAGER DUOC PHEP TAO TAI KHOAN CHO HOTEL CUA HO --- DANG CHO HOAN TAT TINH NANG LOGIN, LOGOUT
@@ -105,8 +146,12 @@ public class UserController {
 
 	@DeleteMapping(value = "/admin/delete/{id}")
 	public ResponseEntity<?> deleteUser(@PathVariable int id) {
-		userService.removeUserById(id);
-		return ResponseEntity.ok(null);
+		try {
+			userService.removeUserById(id);
+			return ResponseEntity.ok("User deleted successfully");
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 	
 	@GetMapping(value = "/home")
@@ -174,5 +219,25 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi đăng xuất: " + e.getMessage());
         }
     }
+	public static class ValidationRequest {
+		private String validationCode;
+		private User user;
+
+		public String getValidationCode() {
+			return validationCode;
+		}
+
+		public void setValidationCode(String validationCode) {
+			this.validationCode = validationCode;
+		}
+
+		public User getUser() {
+			return user;
+		}
+
+		public void setUser(User user) {
+			this.user = user;
+		}
+	}
 
 }
