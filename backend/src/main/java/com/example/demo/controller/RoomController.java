@@ -46,11 +46,11 @@ public class RoomController {
     }
 
     @GetMapping(path = "/getAll/{hotelId}")
-    public List<ResponseForListRoom> getListRoom(@PathVariable String hotelId) {
+    public List<ResponseForListRoom> getListRoom(@PathVariable int hotelId) {
         return lisResponse(hotelId, roomService, roomTypeService);
     }
 
-    public List<ResponseForListRoom> lisResponse(String hotelId, RoomService roomService, RoomTypeService roomTypeService) {
+    public List<ResponseForListRoom> lisResponse(int hotelId, RoomService roomService, RoomTypeService roomTypeService) {
         List<RoomEntity> listRoom =   roomService.getAllByHotelID(hotelId);
         List<ResponseForListRoom> listResponse = new ArrayList<>();
         for(RoomEntity room : listRoom) {
@@ -73,7 +73,7 @@ public class RoomController {
     }
 
     @GetMapping(path = "/getAvailRoom/{id}")
-    public List<ResponseAvailRoom> getAvailRoom(@PathVariable String id) {
+    public List<ResponseAvailRoom> getAvailRoom(@PathVariable int id) {
         List<ResponseForListRoom> lisResponseDetail =lisResponse(id, roomService, roomTypeService);
         List<String> listType = new ArrayList<>();
         Set<String> set  = new HashSet<>();

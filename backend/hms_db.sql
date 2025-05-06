@@ -204,9 +204,9 @@ CREATE TABLE room (
 -- Insert data into room
 INSERT INTO room (room_number, status, hotel_id, type_id, notes)
 VALUES
-(1, 'Available', 1, 1, NULL),
-(10, 'Unavailable', 1, 2, NULL),
-(11, 'Available', 2, 3, NULL),
+(1, 'Available', 3, 1, NULL),
+(10, 'Unavailable', 3, 2, NULL),
+(11, 'Available', 3, 3, NULL),
 (12, 'Unavailable', 1, 4, NULL),
 (13, 'Available', 4, 5, NULL),
 (14, 'Available', 5, 6, NULL),

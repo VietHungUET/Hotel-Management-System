@@ -22,6 +22,7 @@ const App = () => {
             setSession({
               Username: response.data.username,
               Role: response.data.role,
+              HotelId: response.data.hotelId,
             });
           } else {
             setSession(null);

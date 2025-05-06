@@ -21,6 +21,7 @@ function EnhancedTableToolbar({
   typeList,
   roomNames,
   updateRoomList,
+  session,
 }) {
   const [openAddDialog, setOpenAddDialog] = React.useState(false);
   const [openBookingDialog, setOpenBookingDialog] = React.useState(false);
@@ -181,6 +182,7 @@ function EnhancedTableToolbar({
         openBookingDialog={openBookingDialog}
         closeBooking={closeBooking}
         confirmBooking={confirmBooking}
+        session={session}
       />
       <DetailBooking
         openDetailBooking={openDetailBooking}
@@ -242,6 +244,7 @@ EnhancedTableToolbar.propTypes = {
   typeList: PropTypes.array.isRequired,
   roomNames: PropTypes.array,
   updateRoomList: PropTypes.func,
+  session: PropTypes.object,
 };
 
 export default EnhancedTableToolbar;

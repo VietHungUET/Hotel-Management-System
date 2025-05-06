@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RoomRepository extends JpaRepository<RoomEntity, Integer> {
     @Query("SELECT p FROM RoomEntity p WHERE p.hotelId = :hotelId")
-    List<RoomEntity> findByHotelId(String hotelId);
+    List<RoomEntity> findByHotelId(int hotelId);
     @Query("SELECT count(p) FROM RoomEntity p where p.typeId = :roomTypeId and p.status = :status")
     int countRoom(int roomTypeId,String status);
 }

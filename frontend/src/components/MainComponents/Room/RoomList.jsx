@@ -90,7 +90,7 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-function RoomList({ selectedType, selectedStatus, typeList }) {
+function RoomList({ selectedType, selectedStatus, typeList, session }) {
   const [rows, setRows] = React.useState([]);
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("name");
@@ -113,20 +113,27 @@ function RoomList({ selectedType, selectedStatus, typeList }) {
   };
 
   // Call API
-  useEffect(() => {
-    const fetchRooms = async () => {
-      const roomList = await userApi.getAll();
-      const rowsWithId = roomList.map((room, index) => ({
-        ...room,
-        id: index,
-      }));
+    useEffect(() => {
+      const fetchRooms = async () => {
+        try {
+          const roomList = await userApi.getAll({ hotelId: session?.HotelId }); // Truyền hotelId từ session
+          const rowsWithId = roomList.map((room, index) => ({
+            ...room,
+            id: index,
+          }));
 
-      setRoomNumbers(roomList.map((room) => room.roomNumber));
-      setRows(rowsWithId);
-    };
+          setRoomNumbers(roomList.map((room) => room.roomNumber));
+          setRows(rowsWithId);
+        } catch (error) {
+          console.error("Error fetching rooms:", error);
+          setRows([]);
+        }
+      };
 
-    fetchRooms();
-  }, []);
+      if (session?.HotelId) {
+        fetchRooms();
+      }
+    }, [session]);
 
   // ADJUST ROOM
   const handleClickAdjust = (id) => {
@@ -376,6 +383,7 @@ function RoomList({ selectedType, selectedStatus, typeList }) {
             typeList={typeList}
             roomNumbers={roomNumbers}
             updateRoomList={updateRoomList}
+            session={session}
           />
           <TableContainer>
             <Table
@@ -614,6 +622,7 @@ RoomList.propTypes = {
   selectedType: PropTypes.string,
   selectedStatus: PropTypes.string,
   typeList: PropTypes.array,
+  session: PropTypes.object,
 };
 
 export default RoomList;

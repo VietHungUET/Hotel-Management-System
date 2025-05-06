@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.HashMap;
 
 import com.example.demo.entity.UserAccount;
+import com.example.demo.service.CustomDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -166,9 +167,12 @@ public class UserController {
 				.findFirst()
 				.orElse("USER");
 		// Trả về JSON với các trường username và role
-		return ResponseEntity.ok(new HashMap<String, String>() {{
+		CustomDetails customDetails = (CustomDetails) authentication.getPrincipal();
+		int hotelId = customDetails.getHotelId();
+		return ResponseEntity.ok(new HashMap<String,Object>() {{
 			put("username", username);
 			put("role", role);
+			put("hotelId",hotelId);
 		}});
 	}
 	

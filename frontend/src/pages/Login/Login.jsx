@@ -33,7 +33,8 @@ const Login = ({ session, setSession }) => {
         if(response ) {
             const sessionData = {
                 Username: response.username,
-                Role: response.role
+                Role: response.role,
+                HotelId: response.hotelId,
             };
             setSession(sessionData);
             navigate("/main");

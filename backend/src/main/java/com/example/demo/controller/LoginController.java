@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.UserAccount;
+import com.example.demo.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,8 +27,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoginController {
 
 	private final AuthenticationManager authenticationManager;
-	public LoginController(AuthenticationManager authenticationManager) {
+	private final UserService userService;
+
+	public LoginController(AuthenticationManager authenticationManager,UserService userService) {
 		this.authenticationManager = authenticationManager;
+		this.userService = userService;
 	}
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
@@ -53,12 +58,14 @@ public class LoginController {
 					.map(auth -> auth.getAuthority())
 					.findFirst()
 					.orElse("USER");
+			UserAccount user = userService.findByUsername(username);
+			Integer hotelId = (user != null) ? user.getHotelId() : null;
 
-			return ResponseEntity.ok(new LoginResponse("Đăng nhập thành công!", username, role));
+			return ResponseEntity.ok(new LoginResponse("Đăng nhập thành công!", username, role,hotelId));
 		} catch (Exception e) {
 			System.out.print(e);
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body(new LoginResponse("Tài khoản hoặc mật khẩu không chính xác", null, null));
+					.body(new LoginResponse("Tài khoản hoặc mật khẩu không chính xác", null, null,null));
 		}
 	}
 
@@ -66,11 +73,13 @@ public class LoginController {
 		private String message;
 		private String username;
 		private String role;
+		private Integer hotelId;
 
-		public LoginResponse(String message, String username, String role) {
+		public LoginResponse(String message, String username, String role, Integer hotelId) {
 			this.message = message;
 			this.username = username;
 			this.role = role;
+			this.hotelId = hotelId;
 		}
 
 		public String getMessage() {
@@ -84,6 +93,7 @@ public class LoginController {
 		public String getRole() {
 			return role;
 		}
+		public Integer getHotelId() { return hotelId; }
 	}
 
 }

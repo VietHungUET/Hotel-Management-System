@@ -13,8 +13,9 @@ import TabPanel from "@mui/lab/TabPanel";
 import RoomType from "./RoomType";
 import userApi from "../../../api/userApi";
 //const cx = classNames.bind(styles);
+import PropTypes from "prop-types";
 
-function Room() {
+function Room({session}) {
   const [typeSelected, setTypeSelected] = useState(null);
   const [typeList, setTypeList] = React.useState([]);
 
@@ -82,11 +83,16 @@ function Room() {
             selectedType={typeSelected}
             selectedStatus={statusSelected}
             typeList={typeList}
+            session = {session}
           />
         </TabPanel>
       </TabContext>
     </Box>
   );
 }
+
+Room.propTypes = {
+  session: PropTypes.object,
+};
 
 export default Room;

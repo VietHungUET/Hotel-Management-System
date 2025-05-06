@@ -33,5 +33,5 @@ public class UserAccount {
     private String role;
 
     @Column(name="HotelID")
-    private int hotelid;
+    private int hotelId;
 }

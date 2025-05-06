@@ -52,7 +52,7 @@ public class RoomService {
             return "Fail!!!";
         }
     }
-    public List<RoomEntity> getAllByHotelID(String hotelId) {
+    public List<RoomEntity> getAllByHotelID(int hotelId) {
         return roomRepository.findByHotelId(hotelId);
     }
 

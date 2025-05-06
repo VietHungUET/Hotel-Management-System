@@ -15,7 +15,8 @@ const Main = ({ session, setSession }) => {
   const role = session ? session.Role : " ";
   const sessionId = session ? session.SessionId : " ";
   const navigate = useNavigate();
-
+// Main.jsx
+console.log("Session in Main:", session);
   // useEffect(() => {
   //   const verifySession = async () => {
   //     try {
@@ -46,7 +47,7 @@ const Main = ({ session, setSession }) => {
       <div className={cx("container")}>
         {/* <Room /> */}
         <div className={cx("inner")}>
-          <Room />
+          <Room session={session} />
         </div>
       </div>
     </div>

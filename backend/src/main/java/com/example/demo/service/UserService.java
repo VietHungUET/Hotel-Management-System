@@ -49,6 +49,11 @@ public class UserService{
         throw new RuntimeException("Invalid validation code");
     }
 
+    public UserAccount findByUsername(String username) {
+        Optional<UserAccount> userAccount = userAccRepo.findByUserName(username);
+        return userAccount.orElse(null); // Trả về null nếu không tìm thấy
+    }
+
 
 //    public User saveDetails(User user) {
 //        BCryptPasswordEncoder crypt = new BCryptPasswordEncoder();

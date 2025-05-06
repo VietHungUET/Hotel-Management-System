@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +17,16 @@ public class CustomDetails implements UserDetails {
     private String userName;
     private String password;
     private boolean active;
+
+    @Getter
+    private int hotelId;
     private List<GrantedAuthority> authorities;
 
     public CustomDetails(UserAccount userac) {
         this.userName = userac.getUserName();
         this.password = userac.getPassword();
         this.active = userac.isActive();
+        this.hotelId = userac.getHotelId();
         this.authorities = Arrays.stream(userac.getRole().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
@@ -44,6 +49,7 @@ public class CustomDetails implements UserDetails {
         // TODO Auto-generated method stub
         return userName;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

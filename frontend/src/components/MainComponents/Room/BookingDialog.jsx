@@ -92,7 +92,7 @@ const StyledTableHead = styled(TableHead, {
   },
 }));
 
-function BookingDialog({ openBookingDialog, closeBooking, confirmBooking }) {
+function BookingDialog({ openBookingDialog, closeBooking, confirmBooking, session }) {
   const initialState = {
     rows: [],
     startTime: dayjs(),
@@ -120,18 +120,25 @@ function BookingDialog({ openBookingDialog, closeBooking, confirmBooking }) {
     setPastTimeAlert(initialState.pastTimeAlert);
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const userList = await userApi.getAvailRoom();
-      const userListWithQuantity = userList.map((user) => ({
-        ...user,
-        quantity: 0,
-      }));
-      setRows(userListWithQuantity);
-    };
+ useEffect(() => {
+     const fetchUsers = async () => {
+       try {
+         const userList = await userApi.getAvailRoom({ hotelId: session?.HotelId }); // Truyền hotelId từ session
+         const userListWithQuantity = userList.map((user) => ({
+           ...user,
+           quantity: 0,
+         }));
+         setRows(userListWithQuantity);
+       } catch (error) {
+         console.error("Error fetching available rooms:", error);
+         setRows([]);
+       }
+     };
 
-    fetchUsers();
-  }, []);
+     if (session?.HotelId) {
+       fetchUsers();
+     }
+   }, [session]);
 
   const handleChangeQuantity = (index, value) => {
     const parsedValue = parseInt(value, 10);
@@ -414,6 +421,7 @@ BookingDialog.propTypes = {
   openBookingDialog: PropTypes.bool.isRequired,
   closeBooking: PropTypes.func.isRequired,
   confirmBooking: PropTypes.func.isRequired,
+  session: PropTypes.object,
 };
 
 export default BookingDialog;

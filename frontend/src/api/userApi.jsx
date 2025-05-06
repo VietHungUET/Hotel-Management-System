@@ -2,11 +2,11 @@ import axiosClient from "./axiosClient";
 
 const userApi = {
   getAll(params) {
-    const url = "room/getAll/1";
+    const url = `room/getAll/${params.hotelId || 1}`;
     return axiosClient.get(url, { params: params });
   },
   getAvailRoom(params) {
-    const url = "room/getAvailRoom/1";
+    const url = `room/getAvailRoom/${params.hotelId || 1}`;
     return axiosClient.get(url, { params: params });
   },
   getType(params) {
