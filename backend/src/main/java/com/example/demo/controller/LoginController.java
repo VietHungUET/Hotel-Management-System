@@ -34,23 +34,55 @@ public class LoginController {
 			.getContextHolderStrategy();
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request,
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
+			// Xác thực người dùng
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 					loginRequest.user_name(), loginRequest.user_password());
 			Authentication authentication = authenticationManager.authenticate(token);
+
+			// Lưu thông tin xác thực vào SecurityContext và HttpSession
 			SecurityContext context = securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(authentication);
 			securityContextHolderStrategy.setContext(context);
 			securityContextRepository.saveContext(context, request, response);
-			// Đăng nhập thành công, trả về mã trạng thái 200 OK
-			return ResponseEntity.ok("Đăng nhập thành công!");
+
+			String username = loginRequest.user_name();
+			String role = authentication.getAuthorities().stream()
+					.map(auth -> auth.getAuthority())
+					.findFirst()
+					.orElse("USER");
+
+			return ResponseEntity.ok(new LoginResponse("Đăng nhập thành công!", username, role));
 		} catch (Exception e) {
 			System.out.print(e);
-			// Đăng nhập thất bại, xử lý lỗi và trả về mã trạng thái 401 Unauthorized hoặc
-			// 403 Forbidden
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không chính xác" );
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(new LoginResponse("Tài khoản hoặc mật khẩu không chính xác", null, null));
+		}
+	}
+
+	public static class LoginResponse {
+		private String message;
+		private String username;
+		private String role;
+
+		public LoginResponse(String message, String username, String role) {
+			this.message = message;
+			this.username = username;
+			this.role = role;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public String getRole() {
+			return role;
 		}
 	}
 

@@ -153,21 +153,23 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
-	
+
 	@GetMapping(value = "/home")
 	public ResponseEntity<?> homepage() {
-		System.out.println("this is home page");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null && authentication.isAuthenticated()) {
-		    // Lấy danh sách các vai trò (Granted Authorities) của người dùng
-			System.out.println("name xac thuc " + authentication.getName());
-		    for (GrantedAuthority authority : authentication.getAuthorities()) {
-		        // Kiểm tra từng vai trò của người dùng
-		        String role = authority.getAuthority();
-		        System.out.print("vai tro cua " + authentication.getName() + " la: " + role);
-		    }
+		if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login to access this page");
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("This is home page!");
+		String username = authentication.getName();
+		String role = authentication.getAuthorities().stream()
+				.map(auth -> auth.getAuthority())
+				.findFirst()
+				.orElse("USER");
+		// Trả về JSON với các trường username và role
+		return ResponseEntity.ok(new HashMap<String, String>() {{
+			put("username", username);
+			put("role", role);
+		}});
 	}
 	
 	@GetMapping(value = "/admin")
@@ -206,19 +208,19 @@ public class UserController {
 	
 	*/
 
-    @GetMapping("/logout")
-    public ResponseEntity<String> logout() {
-    	System.out.println("goi logout");
-        try {
-            // Xóa thông tin xác thực khỏi SecurityContextHolder
-            SecurityContextHolder.clearContext();
-            // Đăng xuất thành công, trả về mã trạng thái 200 OK
-            return ResponseEntity.ok("Đăng xuất thành công!");
-        } catch (Exception e) {
-            // Xảy ra lỗi khi đăng xuất, trả về mã trạng thái 500 và thông báo lỗi
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi đăng xuất: " + e.getMessage());
-        }
-    }
+//    @GetMapping("/logout")
+//    public ResponseEntity<String> logout() {
+//    	System.out.println("goi logout");
+//        try {
+//            // Xóa thông tin xác thực khỏi SecurityContextHolder
+//            SecurityContextHolder.clearContext();
+//            // Đăng xuất thành công, trả về mã trạng thái 200 OK
+//            return ResponseEntity.ok("Đăng xuất thành công!");
+//        } catch (Exception e) {
+//            // Xảy ra lỗi khi đăng xuất, trả về mã trạng thái 500 và thông báo lỗi
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi đăng xuất: " + e.getMessage());
+//        }
+//    }
 	public static class ValidationRequest {
 		private String validationCode;
 		private User user;

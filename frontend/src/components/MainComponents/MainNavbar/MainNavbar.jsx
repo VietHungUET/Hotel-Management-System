@@ -105,7 +105,6 @@ function Navbar() {
             {BUTTON_LIST.map((button) => (
               <Button
                 key={button.text}
-                href={button.href}
                 color="white"
                 size="large"
                 startIcon={button.icon}
@@ -116,7 +115,7 @@ function Navbar() {
                   },
                 }}
                 onClick={
-                  button.id === "report-button" ? handleReportClick : null
+                  button.id === "report-button" ? handleReportClick : () => navigate(button.href)
                 }
               >
                 {button.text}

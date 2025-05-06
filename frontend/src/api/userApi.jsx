@@ -86,22 +86,14 @@ const userApi = {
     });
   },
 
-  getLogout({ sessionId, userName, role }) {
+  getLogout() {
     const url = "logout";
-    return axiosClient.post(url, {
-      sessionId: sessionId,
-      username: userName,
-      role: role,
-    });
+    return axiosClient.post(url);
   },
 
-  getHome({ sessionId, userName, role }) {
+  getHome() {
     const url = "home";
-    return axiosClient.post(url, {
-      sessionId: sessionId,
-      username: userName,
-      role: role,
-    });
+    return axiosClient.get(url);
   },
  
 };

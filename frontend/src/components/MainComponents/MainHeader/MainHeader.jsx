@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 const cx = classNames.bind(styles);
 
-const MainHeader = ({ session }) => {
+const MainHeader = ({ session,setSession }) => {
   const navigate = useNavigate();
   const userName = session ? session.Username : " ";
   const role = session ? session.Role : " ";
@@ -37,9 +37,10 @@ const MainHeader = ({ session }) => {
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
-      const response = await userApi.getLogout({ sessionId, userName, role });
+      await userApi.getLogout();
       alert("Đăng xuất thành công");
-      navigate(response);
+      setSession(null);
+      navigate("/");
     } catch (error) {
       alert("Đăng xuất không thành công");
       console.error("Đăng xuất không thành công", error);

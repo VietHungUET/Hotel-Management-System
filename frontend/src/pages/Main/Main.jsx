@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 // import Revenue from "../../components/MainComponents/Report/Revenue";
 // import RoomBooking from "../../components/MainComponents/Report/RoomBooking";
 
-const Main = ({ session }) => {
+const Main = ({ session, setSession }) => {
   const userName = session ? session.Username : " ";
   const role = session ? session.Role : " ";
   const sessionId = session ? session.SessionId : " ";
@@ -40,7 +40,7 @@ const Main = ({ session }) => {
   // }, []);
   return (
     <div>
-      <MainHeader session={session} />
+      <MainHeader session={session} setSession={setSession} />
       <MainNavbar />
 
       <div className={cx("container")}>
