@@ -21,7 +21,9 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
    DB_PASSWORD=your_database_password
    EMAIL_USERNAME=your_email_username
    EMAIL_PASSWORD=your_email_password  
-5. Run the application: docker-compose up --build
+5. Run the application:
+   ```bash
+   docker-compose up --build
 
 ## Features
 - Room type management
@@ -29,4 +31,5 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
 - Booking list viewing
 - Report generation
 - Tracking revenue
+- Payment
   
