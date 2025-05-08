@@ -1,10 +1,7 @@
 import * as React from "react";
 import RoomSideBar from "./RoomSideBar";
 import RoomList from "./RoomList";
-
-//import classNames from "classnames/bind";
-//import styles from "./Room.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
@@ -12,31 +9,28 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import RoomType from "./RoomType";
 import userApi from "../../../api/userApi";
-//const cx = classNames.bind(styles);
 import PropTypes from "prop-types";
 
-function Room({session}) {
+function Room({ session }) {
   const [typeSelected, setTypeSelected] = useState(null);
-  const [typeList, setTypeList] = React.useState([]);
+  const [typeList, setTypeList] = useState([]);
+  const [statusSelected, setStatusSelected] = useState(null);
+  const [tabValue, setTabValue] = useState("1");
 
   const handleTypeSelected = (type) => {
     setTypeSelected(type);
   };
 
-  const [statusSelected, setStatusSelected] = useState(null);
-
   const handleStatusSelected = (status) => {
     setStatusSelected(status);
   };
-
-  const [tabValue, setTabValue] = useState("1");
 
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  // GET TYPE FROM API
-  React.useEffect(() => {
+  // Fetch typeList from API on mount
+  useEffect(() => {
     const fetchTypes = async () => {
       try {
         const response = await userApi.getType();
@@ -45,9 +39,37 @@ function Room({session}) {
         console.error("Failed to fetch types", error);
       }
     };
-
     fetchTypes();
   }, []);
+
+  // Callback to add or update a room type
+  const onSaveType = async (newData, isEdit = false, typeId = null) => {
+    try {
+      if (isEdit) {
+        await userApi.updateType(typeId, newData);
+      } else {
+        await userApi.addType(newData);
+      }
+      // Refresh typeList from server after save
+      const response = await userApi.getType();
+      setTypeList(response);
+    } catch (error) {
+      console.error("Error saving type:", error);
+    }
+  };
+
+  // Callback to delete a room type
+  const onDeleteType = async (typeId) => {
+    try {
+      await userApi.deleteType(typeId);
+      // Refresh typeList from server after delete
+      const response = await userApi.getType();
+      setTypeList(response);
+    } catch (error) {
+      console.error("Error deleting type:", error);
+    }
+  };
+
   return (
     <Box
       sx={{ width: "100%", typography: "body1", bgcolor: "background.paper" }}
@@ -71,7 +93,11 @@ function Room({session}) {
           </TabList>
         </Box>
         <TabPanel value="1" sx={{ padding: 0 }}>
-          <RoomType typeList={typeList} />
+          <RoomType
+            typeList={typeList}
+            onSaveType={onSaveType}
+            onDeleteType={onDeleteType}
+          />
         </TabPanel>
         <TabPanel value="2" sx={{ display: "flex", padding: 0 }}>
           <RoomSideBar
@@ -83,7 +109,7 @@ function Room({session}) {
             selectedType={typeSelected}
             selectedStatus={statusSelected}
             typeList={typeList}
-            session = {session}
+            session={session}
           />
         </TabPanel>
       </TabContext>

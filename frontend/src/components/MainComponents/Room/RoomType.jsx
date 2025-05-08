@@ -1,5 +1,4 @@
 import * as React from "react";
-import PropTypes from "prop-types";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -29,7 +28,7 @@ import InputLabel from "@mui/material/InputLabel";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControl from "@mui/material/FormControl";
 import CloseIcon from "@mui/icons-material/Close";
-import userApi from "../../../api/userApi";
+import PropTypes from "prop-types";
 
 const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
@@ -73,7 +72,7 @@ function createData(
     dailyRate,
     overtimePay,
     capacity,
-    price
+    price,
   };
 }
 
@@ -81,9 +80,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-function RoomType({ typeList }) {
+function RoomType({ typeList, onSaveType, onDeleteType }) {
   const [rows, setRows] = React.useState([]);
-
   const initialFormState = {
     name: "",
     description: "",
@@ -92,7 +90,7 @@ function RoomType({ typeList }) {
     dailyRate: "",
     overtimePay: "",
     capacity: "",
-    price:"",
+    price: "",
   };
 
   const [formState, setFormState] = React.useState(initialFormState);
@@ -101,6 +99,7 @@ function RoomType({ typeList }) {
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [deleteIndex, setDeleteIndex] = React.useState(null);
 
+  // Sync rows with typeList from props
   React.useEffect(() => {
     setRows(
       typeList.map((item) =>
@@ -142,8 +141,7 @@ function RoomType({ typeList }) {
   const deleteType = async () => {
     const typeIdToDelete = rows[deleteIndex].typeId;
     try {
-      setRows((prevRows) => prevRows.filter((_, idx) => idx !== deleteIndex));
-      await userApi.deleteType(typeIdToDelete);
+      await onDeleteType(typeIdToDelete); // Call parent callback to delete
     } catch (error) {
       console.error("Error deleting type:", error);
     } finally {
@@ -187,40 +185,22 @@ function RoomType({ typeList }) {
       return;
     }
 
-    const newID =
-      rows.length > 0 ? Math.max(...rows.map((row) => row.typeId)) + 1 : 1;
-
     const newData = {
       name,
       description,
       nightRate: parseFloat(nightRate),
       dayRate: parseFloat(dayRate),
-      nightRate: parseFloat(nightRate),
       dailyRate: parseFloat(dailyRate),
       overtimePay: parseFloat(overtimePay),
       capacity: parseInt(capacity),
       price: parseInt(price),
     };
 
-     const displayData = {
-           ...newData,
-           typeId:
-             rows.length > 0 ? Math.max(...rows.map((row) => row.typeId)) + 1 : 1,
-         };
-//     console.log(newData);
-
-
     try {
       if (selectedRow !== null) {
-        setRows((prevRows) =>
-          prevRows.map((row) =>
-            row.typeId === selectedRow.typeId ? { ...newData, typeId: selectedRow.typeId } : row
-          )
-        );
-        await userApi.updateType(selectedRow.typeId, newData);
+        await onSaveType(newData, true, selectedRow.typeId); // Call parent callback to update
       } else {
-        setRows((prevRows) => [...prevRows, displayData]);
-        await userApi.addType(newData);
+        await onSaveType(newData, false); // Call parent callback to add
       }
     } catch (error) {
       console.error("Error saving change:", error);
@@ -305,9 +285,7 @@ function RoomType({ typeList }) {
                 <StyledTableCell align="right">{row.dayRate}</StyledTableCell>
                 <StyledTableCell align="right">{row.nightRate}</StyledTableCell>
                 <StyledTableCell align="right">{row.dailyRate}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.overtimePay}
-                </StyledTableCell>
+                <StyledTableCell align="right">{row.overtimePay}</StyledTableCell>
                 <StyledTableCell align="right">{row.capacity}</StyledTableCell>
                 <StyledTableCell align="right">
                   <IconButton onClick={() => updateType(index)}>
@@ -358,9 +336,7 @@ function RoomType({ typeList }) {
               <InputLabel htmlFor="dayRate">Day Rate</InputLabel>
               <OutlinedInput
                 id="dayRate"
-                startAdornment={
-                  <InputAdornment position="start">$</InputAdornment>
-                }
+                startAdornment={<InputAdornment position="start">$</InputAdornment>}
                 label="Day Rate"
                 value={formState.dayRate}
                 onChange={handleInputChange}
@@ -370,9 +346,7 @@ function RoomType({ typeList }) {
               <InputLabel htmlFor="nightRate">Night Rate</InputLabel>
               <OutlinedInput
                 id="nightRate"
-                startAdornment={
-                  <InputAdornment position="start">$</InputAdornment>
-                }
+                startAdornment={<InputAdornment position="start">$</InputAdornment>}
                 label="Night Rate"
                 value={formState.nightRate}
                 onChange={handleInputChange}
@@ -382,9 +356,7 @@ function RoomType({ typeList }) {
               <InputLabel htmlFor="dailyRate">Daily Rate</InputLabel>
               <OutlinedInput
                 id="dailyRate"
-                startAdornment={
-                  <InputAdornment position="start">$</InputAdornment>
-                }
+                startAdornment={<InputAdornment position="start">$</InputAdornment>}
                 label="Daily Rate"
                 value={formState.dailyRate}
                 onChange={handleInputChange}
@@ -394,27 +366,23 @@ function RoomType({ typeList }) {
               <InputLabel htmlFor="overtimePay">Overtime Pay</InputLabel>
               <OutlinedInput
                 id="overtimePay"
-                startAdornment={
-                  <InputAdornment position="start">$/h</InputAdornment>
-                }
+                startAdornment={<InputAdornment position="start">$/h</InputAdornment>}
                 label="Overtime Pay"
                 value={formState.overtimePay}
                 onChange={handleInputChange}
               />
             </FormControl>
             <FormControl fullWidth sx={{ m: 1 }}>
-                                      <InputLabel htmlFor="price">Price</InputLabel>
-                                      <OutlinedInput
-                                        id="price"
-                                        startAdornment={
-                                          <InputAdornment position="start">$</InputAdornment>
-                                        }
-                                        label="Price"
-                                        value={formState.price}
-                                        onChange={handleInputChange}
-                                        type="number"
-                                      />
-             </FormControl>
+              <InputLabel htmlFor="price">Price</InputLabel>
+              <OutlinedInput
+                id="price"
+                startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                label="Price"
+                value={formState.price}
+                onChange={handleInputChange}
+                type="number"
+              />
+            </FormControl>
             <TextField
               required
               id="capacity"
@@ -453,6 +421,8 @@ function RoomType({ typeList }) {
 
 RoomType.propTypes = {
   typeList: PropTypes.array.isRequired,
+  onSaveType: PropTypes.func.isRequired,
+  onDeleteType: PropTypes.func.isRequired,
 };
 
 export default RoomType;
