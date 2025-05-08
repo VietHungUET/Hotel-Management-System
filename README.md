@@ -4,7 +4,7 @@ A web application for managing hotel operations, built with Spring Boot and Reac
 
 ## Technologies Used
 
-- **Backend**: Spring Boot, PostgreSQL
+- **Backend**: Spring Boot
 - **Frontend**: React, Material-UI
 - **Containerization**: Docker, Docker Compose
 - **Database**: PostgreSQL
@@ -32,4 +32,14 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
 - Report generation
 - Tracking revenue
 - Payment
-  
+
+## Project Structure
+Hotel-Management-System/
+├── backend/                 # Backend code (Spring Boot)
+├── db/                      # Database-related files
+│   └── init/                # Database initialization scripts
+│       └── hms_db.sql       # SQL script for database setup
+├── frontend/                # Frontend code (React)
+│  
+├── .env                     # Environment configuration file
+└── docker-compose.yml       # Docker Compose configuration file
