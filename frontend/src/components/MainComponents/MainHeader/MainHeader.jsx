@@ -16,7 +16,7 @@ import classNames from "classnames/bind";
 import styles from "./MainHeader.module.css";
 import userApi from "../../../api/userApi";
 import { useNavigate } from "react-router-dom";
-
+import {assets} from '../../../assets/assets'
 const cx = classNames.bind(styles);
 
 const MainHeader = ({ session,setSession }) => {
@@ -56,13 +56,13 @@ const MainHeader = ({ session,setSession }) => {
     <header className={cx("wrapper")}>
       <div className={cx("inner")}>
         <a href="/" className={cx("logo")}>
-          {/* <img src="hms-frontend\src\assets\transylvania_logo.png" alt="Transylvania" title="Transylvania" /> */}
-          Transylvania
+          <img src={assets.logo_img} alt="" title="" />
+           <span className={cx("logo-text")}>Lunora</span>
         </a>
 
         <React.Fragment>
           <Box
-            sx={{ display: "flex", alignItems: "center", textAlign: "center" }}
+            sx={{ display: "flex", alignItems: "center", textAlign: "center",  fontWeight: "bold" }}
           >
             {userName}
             <Tooltip title="Account settings">
@@ -74,7 +74,7 @@ const MainHeader = ({ session,setSession }) => {
                 aria-haspopup="true"
                 aria-expanded={open ? "true" : undefined}
               >
-                <Avatar sx={{ width: 40, height: 40 }}>TA</Avatar>
+                <Avatar sx={{ width: 40, height: 40 }}></Avatar>
               </IconButton>
             </Tooltip>
           </Box>

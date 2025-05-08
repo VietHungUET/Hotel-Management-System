@@ -3,20 +3,59 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: white;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 50;
+    transition: all 0.3s ease;
+}
+
+.navbar.transparent {
+  background-color: transparent;
+}
+
+.navbar.scrolled {
+  background-color: white;
+}
+
+.navbar .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .navbar .logo {
-    height: 40px;
+    height:60px;
+}
+
+.navbar .logo-text {
+    font-size: 18;
+    font-weight: bold;
+    color: inherit;
+}
+
+.navbar.transparent .logo-text {
+    color: white;
+}
+
+.navbar.scrolled .logo-text {
+    color: black;
 }
 
 .navbar-menu {
     display: flex;
     gap: 20px;
-    color: #49557e;
     font-size: 18px;
     justify-content: center;
     align-items: center;
+}
+
+.navbar.transparent .navbar-menu .nav {
+    color: white;
+}
+
+.navbar.scrolled .navbar-menu .nav {
+    color: black;
 }
 
 .navbar-menu .nav {
@@ -27,7 +66,7 @@
 .navbar-menu .nav:hover {
     background-color: #88c0f1;
     border-radius: 50px;
-    color: white;;
+    color: white;
 }
 
 .navbar-right {
@@ -39,8 +78,8 @@
 .navbar button {
     background: transparent;
     font-size: 18px;
-    color: #49557e;
-    border: 1px solid #63b6ff;
+    color: black;
+    border: 1px solid transparent;
     padding: 10px 30px;
     border-radius: 50px;
     cursor: pointer;
@@ -49,4 +88,12 @@
 
 .navbar button:hover {
     background-color: #bbdfff;
+}
+
+.navbar.transparent button {
+    color: white;
+}
+
+.navbar.scrolled button {
+    color: black;
 }

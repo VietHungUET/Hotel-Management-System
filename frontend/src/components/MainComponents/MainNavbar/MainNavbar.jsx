@@ -111,7 +111,7 @@ function Navbar() {
                 sx={{
                   width: 200,
                   "&:hover": {
-                    bgcolor: "#3B8665",
+                    bgcolor: "#9EBAF3",
                   },
                 }}
                 onClick={

@@ -41,7 +41,7 @@ import {
 
 const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#ebf5ee",
+    backgroundColor: "#f0f8ff",
     color: "#1f2224",
     fontSize: 14,
     border: 0,
