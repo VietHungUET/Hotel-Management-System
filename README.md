@@ -34,6 +34,7 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
 - Payment
 
 ## Project Structure
+ ```bash
 Hotel-Management-System/
 ├── backend/                 # Backend code (Spring Boot)
 ├── db/                      # Database-related files
