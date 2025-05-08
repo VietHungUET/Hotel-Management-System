@@ -86,6 +86,7 @@ public class SecurityConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // Cho phép credentials (cookies, authorization headers)
+        config.addAllowedOrigin("http://localhost");
         config.addAllowedOrigin("http://localhost:5173"); // Chỉ cho phép origin của frontend
         config.addAllowedHeader("*"); // Cho phép tất cả header
         config.addAllowedMethod("*"); // Cho phép tất cả phương thức (GET, POST, etc.)
@@ -97,6 +98,7 @@ public class SecurityConfiguration {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("http://localhost");
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
