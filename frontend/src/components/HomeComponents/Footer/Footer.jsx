@@ -8,11 +8,11 @@ const Footer = () => {
       <div className="footer-content">
         <div className="footer-content-left">
           {/* <img src={assets.logo} alt="" /> */}
-          <p>Transylvania Corporation</p>
+          <p>Lunora Corporation</p>
           <ul>
-            <li>Hoang Dang Khai</li>
-            <li>Tran Duy Tuan Anh</li>
             <li>Vu Viet Hung</li>
+            <li>Tran Duy Tuan Anh</li>
+            <li>Hoang Dang Khai</li>
             <li>Nguyen Duy Anh Quoc</li>
             <li>Le Van Luong</li>
           </ul>
@@ -34,7 +34,7 @@ const Footer = () => {
           <h2>Get in touch</h2>
           <ul>
             <li>088888888</li>
-            <li>contact@Transylvania.com</li>
+            <li>contact@Lunora.com</li>
           </ul>
         </div>
       </div>
