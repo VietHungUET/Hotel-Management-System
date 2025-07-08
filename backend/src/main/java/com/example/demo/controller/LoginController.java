@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
+@RequiredArgsConstructor
 public class LoginController {
 
 	private final AuthenticationManager authenticationManager;

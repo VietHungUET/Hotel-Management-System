@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 public class HotelController {
-    @Autowired
-    private HotelService hotelService;
+
+    private final HotelService hotelService;
 
     @GetMapping(path = "/hotel/getAll")
     public @ResponseBody Iterable<HotelEntity> getAllHotel() {

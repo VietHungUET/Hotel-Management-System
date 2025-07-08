@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class GuestService {
-    @Autowired
-    private GuestRepository guestRepository;
+
+    private final GuestRepository guestRepository;
     public Iterable<GuestEntity> getAllGuest() {
         return guestRepository.findAll();
     }

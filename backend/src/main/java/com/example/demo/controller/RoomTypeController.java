@@ -9,9 +9,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/roomType")
+@RequiredArgsConstructor
 public class RoomTypeController {
-    @Autowired
-    private RoomTypeService roomTypeService;
+
+    private final RoomTypeService roomTypeService;
 
     @GetMapping(path = "/getAll")
     public List<RoomTypeEntity> getAllRoomType() {

@@ -13,15 +13,12 @@ import com.example.demo.entity.UserAccount;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService{
-    @Autowired
-    private UserRepository userRepo;
 
-    @Autowired
-    private UserAccountRepository userAccRepo;
-
-    @Autowired
-    private EmailSenderService emailService;
+    private final UserRepository userRepo;
+    private final UserAccountRepository userAccRepo;
+    private final EmailSenderService emailService;
 
     public boolean check_existed(String userName) {
         return userAccRepo.findByUserName(userName).isPresent();

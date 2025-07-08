@@ -12,9 +12,10 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BookingService {
-    @Autowired
-    private BookingRepository bookingRepository;
+
+    private final BookingRepository bookingRepository;
     public Iterable<BookingEntity> getAllBooking() {
         return bookingRepository.findAll();
     }

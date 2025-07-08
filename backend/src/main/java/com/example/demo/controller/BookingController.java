@@ -8,6 +8,7 @@ import com.example.demo.service.BookingService;
 import com.example.demo.service.PaymentService;
 import com.example.demo.service.RoomService;
 import com.example.demo.service.RoomTypeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class BookingController {
-    @Autowired
-    private BookingService bookingService;
 
-    @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private RoomTypeService roomTypeService;
-    @Autowired
-    private PaymentService paymentsService;
+    private final BookingService bookingService;
+    private final RoomService roomService;
+    private final RoomTypeService roomTypeService;
+    private final PaymentService paymentsService;
 
     @GetMapping(path="/booking/getAll")
     public @ResponseBody Iterable<BookingEntity> getAllBooking() {

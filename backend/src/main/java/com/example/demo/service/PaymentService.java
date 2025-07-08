@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
-    @Autowired
-    private PaymentRepository paymentRepository;
+
+    private final PaymentRepository paymentRepository;
 
     public PaymentEntity getPaymentByID(int id) {
         return paymentRepository.findById(id).orElse(null);

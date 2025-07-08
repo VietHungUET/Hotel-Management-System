@@ -6,6 +6,7 @@ import com.example.demo.entity.RoomEntity;
 import com.example.demo.entity.RoomTypeEntity;
 import com.example.demo.service.RoomService;
 import com.example.demo.service.RoomTypeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,14 +17,11 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/room")
+@RequiredArgsConstructor
 public class RoomController {
-    @Autowired
-    private RoomService roomService;
 
-    @Autowired
-    private RoomTypeService roomTypeService;
-
-
+    private final RoomService roomService;
+    private final RoomTypeService roomTypeService;
 
     @GetMapping(path = "/updateStatusRoomUsing2Active/{id}")
     public String updateStatusUsing2Active(@PathVariable int id) {

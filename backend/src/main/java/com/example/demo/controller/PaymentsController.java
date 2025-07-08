@@ -13,9 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class PaymentsController {
-    @Autowired
-    private PaymentService paymentsService;
+
+    private final PaymentService paymentsService;
 
     @GetMapping(path = "/payment/getAll")
     public @ResponseBody List<PaymentEntity> getAllPayments() {

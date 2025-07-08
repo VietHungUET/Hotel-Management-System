@@ -26,8 +26,8 @@ import com.example.demo.entity.User;
 
 @RestController
 public class UserController {
-	@Autowired
-	private UserService userService;
+
+	private final UserService userService;
 
 //	private final EmailSenderService emailService;
 //	private final UserRepository userRepo;

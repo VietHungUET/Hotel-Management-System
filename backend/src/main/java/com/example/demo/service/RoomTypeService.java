@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RoomTypeService {
-    @Autowired
-    private RoomTypeRepository roomTypeRepository;
+
+    private final RoomTypeRepository roomTypeRepository;
     public List<RoomTypeEntity> getAllRoomType() {
         return roomTypeRepository.findAll();
     }

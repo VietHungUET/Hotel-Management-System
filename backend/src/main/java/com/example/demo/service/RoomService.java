@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RoomService {
-    @Autowired
-    private RoomRepository roomRepository;
+
+    private final RoomRepository roomRepository;
 
     public RoomEntity saveDetails(RoomEntity room) {
         roomRepository.save(room);
