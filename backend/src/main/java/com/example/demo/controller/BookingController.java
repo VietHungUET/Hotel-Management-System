@@ -28,7 +28,6 @@ public class BookingController {
 
     @GetMapping(path="/booking/getAll")
     public @ResponseBody Iterable<BookingEntity> getAllBooking() {
-        // This returns a JSON or XML with the users
         return bookingService.getAllBooking();
     }
     //hàm này để update các infor về booking, cho trường hợp khách muốn đổi ngày checkin-checkout,

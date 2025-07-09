@@ -4,10 +4,13 @@ import com.example.demo.entity.ResponseAvailRoom;
 import com.example.demo.entity.ResponseForListRoom;
 import com.example.demo.entity.RoomEntity;
 import com.example.demo.entity.RoomTypeEntity;
+import com.example.demo.service.CustomDetails;
+import com.example.demo.service.HotelService;
 import com.example.demo.service.RoomService;
 import com.example.demo.service.RoomTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ public class RoomController {
 
     private final RoomService roomService;
     private final RoomTypeService roomTypeService;
+    private final HotelService hotelService;
 
     @GetMapping(path = "/updateStatusRoomUsing2Active/{id}")
     public String updateStatusUsing2Active(@PathVariable int id) {
@@ -33,10 +37,26 @@ public class RoomController {
     public String updateStatusActive2Using(@PathVariable int id) {
         return roomService.updateStatusActive2Using(id);
     }
-    @PostMapping(path = "/add")
-    public RoomEntity addRoom(@RequestBody RoomEntity room) {
-        return  roomService.saveDetails(room);
+
+    @PostMapping("/add")
+    public RoomEntity addRoom(@RequestBody RoomEntity roomEntity,
+                              @AuthenticationPrincipal CustomDetails userDetails) {
+
+        int userId = userDetails.getUser().getId();
+
+        // Lấy hotel_id của user
+        Integer hotelId = hotelService.getHotelIdByUserId(userId);
+
+        // Nếu không có hotel thì trả về null, không xử lý gì thêm
+        if (hotelId == null) {
+            return null;
+        }
+
+        // Gán hotelId cho room rồi lưu
+        roomEntity.setHotelId(hotelId);
+        return roomService.saveDetails(roomEntity);
     }
+
 
     @DeleteMapping(path = "/delete/{id}")
     public String deleteRoom(@PathVariable Integer id) {
@@ -44,7 +64,14 @@ public class RoomController {
     }
 
     @GetMapping(path = "/getAll/{hotelId}")
-    public List<ResponseForListRoom> getListRoom(@PathVariable int hotelId) {
+    public List<ResponseForListRoom> getListRoom(@AuthenticationPrincipal CustomDetails userDetails) {
+        int userId = userDetails.getUser().getId();
+
+        Integer hotelId = hotelService.getHotelIdByUserId(userId);
+        if (hotelId == null) {
+            return List.of(); // Trả về danh sách rỗng nếu user chưa có khách sạn
+        }
+
         return lisResponse(hotelId, roomService, roomTypeService);
     }
 
@@ -69,6 +96,7 @@ public class RoomController {
         }
         return listResponse;
     }
+
 
     @GetMapping(path = "/getAvailRoom/{id}")
     public List<ResponseAvailRoom> getAvailRoom(@PathVariable int id) {

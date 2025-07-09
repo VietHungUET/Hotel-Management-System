@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.HotelEntity;
 import com.example.demo.repository.HotelRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,5 +19,10 @@ public class HotelService {
     public HotelEntity saveDetails(HotelEntity hotel) {
         hotelRepository.save(hotel);
         return hotel;
+    }
+
+    public Integer getHotelIdByUserId(int userId) {
+        HotelEntity hotel = hotelRepository.findByUserId(userId);
+        return (hotel != null) ? hotel.getHotelId() : null;
     }
 }

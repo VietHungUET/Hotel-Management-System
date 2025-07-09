@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.example.demo.repository.UserAccountRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.entity.User;
-import com.example.demo.entity.UserAccount;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 public class UserService{
 
     private final UserRepository userRepo;
-    private final UserAccountRepository userAccRepo;
+//    private final UserAccountRepository userAccRepo;
     private final EmailSenderService emailService;
 
     public boolean check_existed(String userName) {
-        return userAccRepo.findByUserName(userName).isPresent();
+        return userRepo.findByUserName(userName).isPresent();
     }
 
     public String initiateRegistration(User user) {
@@ -38,17 +38,20 @@ public class UserService{
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             String encryptedPass = encoder.encode(user.getUser_password());
             user.setUser_password(encryptedPass);
+
+            if (user.getRole() == null || user.getRole().isEmpty()) {
+                user.setRole("user"); // Đặt ROLE mặc định là "USER"
+            }
+
             User savedUser = userRepo.save(user);
-            UserAccount account = new UserAccount(user.getUser_name(), encryptedPass, true, "MANAGER", savedUser.getId());
-            userAccRepo.save(account);
             return savedUser;
         }
         throw new RuntimeException("Invalid validation code");
     }
 
-    public UserAccount findByUsername(String username) {
-        Optional<UserAccount> userAccount = userAccRepo.findByUserName(username);
-        return userAccount.orElse(null); // Trả về null nếu không tìm thấy
+    public User findByUsername(String username) {
+        Optional<User> user = userRepo.findByUserName(username);
+        return user.orElse(null); // Trả về null nếu không tìm thấy
     }
 
 
@@ -69,18 +72,27 @@ public class UserService{
         return userRepo.getReferenceById(id);
     }
 
-    public UserAccount addAccount(String userName, String password, boolean active, String role, int hotelId) {
+    public User addAccount(String userName, String password, String role, String email, String fullName, String phone) {
         if (check_existed(userName)) {
             throw new RuntimeException("Username already exists");
         }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encryptedPass = encoder.encode(password);
-        UserAccount account = new UserAccount(userName, encryptedPass, active, role, hotelId);
-        return userAccRepo.save(account);
+
+        User newUser = new User();
+        newUser.setUser_name(userName);
+        newUser.setUser_password(encryptedPass);
+        newUser.setRole(role);
+        newUser.setEmail(email);
+        newUser.setFull_name(fullName);
+        newUser.setPhone(phone);
+
+        return userRepo.save(newUser);
     }
 
     public User updateUser(int id, User user) {
         User existingUser = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
         if (user.getFull_name() != null) existingUser.setFull_name(user.getFull_name());
         if (user.getPhone() != null) existingUser.setPhone(user.getPhone());
         if (user.getEmail() != null) existingUser.setEmail(user.getEmail());

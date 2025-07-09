@@ -4,6 +4,7 @@ import com.example.demo.entity.BookingEntity;
 import com.example.demo.entity.RoomEntity;
 import com.example.demo.entity.RoomTypeEntity;
 import com.example.demo.repository.BookingRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

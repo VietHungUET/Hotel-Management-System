@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.PaymentEntity;
 import com.example.demo.repository.PaymentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

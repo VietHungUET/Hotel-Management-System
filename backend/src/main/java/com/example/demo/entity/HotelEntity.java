@@ -17,9 +17,15 @@ public class HotelEntity {
     private String phone;
     private String email;
     private Integer star;
+
     @Column(name = "checkin_time")
     private String checkinTime;
+
     @Column(name = "checkout_time")
     private String checkoutTime;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", unique = true)
+    private User user;
 
 }

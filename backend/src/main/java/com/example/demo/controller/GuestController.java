@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.GuestEntity;
 import com.example.demo.service.GuestService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,78 +1,50 @@
 package com.example.demo.service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import lombok.Getter;
+import com.example.demo.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.demo.entity.UserAccount;
+import java.util.Collection;
+import java.util.Collections;
 
 public class CustomDetails implements UserDetails {
 
-    private String userName;
-    private String password;
-    private boolean active;
+    private User user;
 
-    @Getter
-    private int hotelId;
-    private List<GrantedAuthority> authorities;
+    // Cập nhật constructor để chỉ chấp nhận User
+    public CustomDetails(User user) {
+        this.user = user;
 
-    public CustomDetails(UserAccount userac) {
-        this.userName = userac.getUserName();
-        this.password = userac.getPassword();
-        this.active = userac.isActive();
-        this.hotelId = userac.getHotelId();
-        this.authorities = Arrays.stream(userac.getRole().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
-        return authorities;
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
     }
 
     @Override
     public String getPassword() {
-        // TODO Auto-generated method stub
-        return password;
+        return user.getUser_password();
     }
 
     @Override
     public String getUsername() {
-        // TODO Auto-generated method stub
-        return userName;
-    }
-
-
-    @Override
-    public boolean isAccountNonExpired() {
-        // TODO Auto-generated method stub
-        return true;
+        return user.getUser_name();
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
+    public boolean isAccountNonExpired() { return true; }
     @Override
-    public boolean isCredentialsNonExpired() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
+    public boolean isAccountNonLocked() { return true; }
     @Override
-    public boolean isEnabled() {
-        // TODO Auto-generated method stub
-        return active;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
+    @Override
+    public boolean isEnabled() { return true; }
 
+
+
+    public User getUser() {
+        return user;
+    }
 }

@@ -1,27 +1,21 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.UserAccount;
+import com.example.demo.entity.User;
+import com.example.demo.service.CustomDetails; // Vẫn cần CustomDetails nếu bạn dùng nó cho các thông tin khác
+import com.example.demo.service.JwtService;
 import com.example.demo.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.UserService.LoginRequest;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,44 +23,32 @@ public class LoginController {
 
 	private final AuthenticationManager authenticationManager;
 	private final UserService userService;
-
-	public LoginController(AuthenticationManager authenticationManager,UserService userService) {
-		this.authenticationManager = authenticationManager;
-		this.userService = userService;
-	}
-
-	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-	private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+	private final JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 		try {
-			// Xác thực người dùng
-			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-					loginRequest.user_name(), loginRequest.user_password());
-			Authentication authentication = authenticationManager.authenticate(token);
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(loginRequest.user_name(), loginRequest.user_password())
+			);
 
-			// Lưu thông tin xác thực vào SecurityContext và HttpSession
-			SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-			context.setAuthentication(authentication);
-			securityContextHolderStrategy.setContext(context);
-			securityContextRepository.saveContext(context, request, response);
+			UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+			String token = jwtService.generateToken(userDetails);
 
-			String username = loginRequest.user_name();
-			String role = authentication.getAuthorities().stream()
+			String role = userDetails.getAuthorities().stream()
 					.map(auth -> auth.getAuthority())
 					.findFirst()
 					.orElse("USER");
-			UserAccount user = userService.findByUsername(username);
-			Integer hotelId = (user != null) ? user.getHotelId() : null;
 
-			return ResponseEntity.ok(new LoginResponse("Đăng nhập thành công!", username, role,hotelId));
+
+			// Cập nhật LoginResponse constructor để không còn hotelId
+			return ResponseEntity.ok(new LoginResponse("Đăng nhập thành công!", userDetails.getUsername(), role, token));
+
 		} catch (Exception e) {
-			System.out.print(e);
+			System.err.println("Authentication failed: " + e.getMessage());
+			// Cập nhật LoginResponse constructor để không còn hotelId
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body(new LoginResponse("Tài khoản hoặc mật khẩu không chính xác", null, null,null));
+					.body(new LoginResponse("Tài khoản hoặc mật khẩu không chính xác", null, null, null));
 		}
 	}
 
@@ -74,27 +56,21 @@ public class LoginController {
 		private String message;
 		private String username;
 		private String role;
-		private Integer hotelId;
+		private String token;
 
-		public LoginResponse(String message, String username, String role, Integer hotelId) {
+		// Cập nhật constructor
+		public LoginResponse(String message, String username, String role, String token) {
 			this.message = message;
 			this.username = username;
 			this.role = role;
-			this.hotelId = hotelId;
+			this.token = token;
 		}
 
-		public String getMessage() {
-			return message;
-		}
+		public String getMessage() { return message; }
+		public String getUsername() { return username; }
+		public String getRole() { return role; }
 
-		public String getUsername() {
-			return username;
-		}
-
-		public String getRole() {
-			return role;
-		}
-		public Integer getHotelId() { return hotelId; }
+		public String getToken() { return token; }
 	}
 
 }

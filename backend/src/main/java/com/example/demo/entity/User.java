@@ -23,7 +23,7 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "HotelID")
+    @Column(name = "user_id")
     private int id;
 
     @Column(name = "full_name")
@@ -41,4 +41,6 @@ public class User {
     @Column(name = "user_password")
     private String user_password;
 
+    @Column(name = "role", nullable = false) // Thêm trường 'role'
+    private String role;
 }

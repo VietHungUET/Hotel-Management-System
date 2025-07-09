@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.example.demo.entity.UserAccount;
 import com.example.demo.service.CustomDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,39 +26,10 @@ import com.example.demo.service.UserService.UserInput;
 import com.example.demo.entity.User;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
 	private final UserService userService;
-
-//	private final EmailSenderService emailService;
-//	private final UserRepository userRepo;
-//	private final UserAccountRepository userAccRepo;
-
-//	private HashMap<String, User> check_valid = new HashMap<>();
-
-//	@Autowired
-//	public UserController(EmailSenderService emailService, UserRepository userRepo, UserAccountRepository userAccRepo) {
-//		this.emailService = emailService;
-//		this.userRepo = userRepo;
-//		this.userAccRepo = userAccRepo;
-//	}
-
-//	@PostMapping(value = "/register")
-//	public ResponseEntity<?> register(@RequestBody User userRequest) {
-//
-//		if (userService.check_existed(userRequest.getUser_name())) {
-//			System.out.println(userRequest.getUser_name());
-//
-//			return ResponseEntity.status(HttpStatus.CONFLICT).body("Tên người dùng đã tồn tại");
-//		}
-//		/*
-//		String uuid = emailService.sendAuthenticationEmail(userRequest.getEmail());
-//		check_valid.put("1", userRequest);
-//		System.out.println("uuid:" + uuid);
-//		*/
-//		userService.saveDetails(userRequest);
-//		return ResponseEntity.status(HttpStatus.OK).body("Vui lòng kiểm tra email của bạn");
-//	}
 
 	@PostMapping(value="/register")
 	public ResponseEntity<?> register(@RequestBody User user) {
@@ -79,24 +51,7 @@ public class UserController {
 		}
 	}
 
-//	@PostMapping("/manager/add_account")
-//	public ResponseEntity<?> addAccount(@RequestBody UserService.AddAccount userInput, Authentication auth) {
-//		try {
-//			if (!auth.getAuthorities().contains(new GrantedAuthority() {
-//				@Override
-//				public String getAuthority() {
-//					return "MANAGER";
-//				}
-//			})) {
-//				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only managers can add accounts");
-//			}
-//			UserAccount account = userService.addAccount(userInput.userName(), userInput.password(), userInput.active(),
-//					userInput.role(), userInput.hotelId());
-//			return ResponseEntity.status(HttpStatus.CREATED).body("Account created for username: " + account.getUserName());
-//		} catch (RuntimeException e) {
-//			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-//		}
-//	}
+
 
 
 //	@PostMapping(value = "/register/validation")
@@ -112,38 +67,9 @@ public class UserController {
 //		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mã xác thực không tồn tại");
 //	}
 	
-	/*
-	//MANAGER DUOC PHEP TAO TAI KHOAN CHO HOTEL CUA HO --- DANG CHO HOAN TAT TINH NANG LOGIN, LOGOUT
-	@PostMapping(value = "/manager/add_account")
-	public ResponseEntity<?> addAccount(@RequestBody AddAccount user_input) {
-		UserAccount newAcc = new UserAccount(user_input.user_name(),user_input.user_password(),user_input.active(),user_input.role(), "Can lay hotel id cua manager hien tai");
-		if (userService.check_existed(user_input.user_name())) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("Tên người dùng đã tồn tại");
-		}
-		return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký tài khoản thành công");
-	}
-	*/
+
 	
-	/*
-	@PatchMapping(value = "/admin/update/{id}")
-	public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody UserRequest userRequest) {
-		User user = userService.getUserById(id);
-		if (user == null)
-			return (ResponseEntity<?>) ResponseEntity.notFound();
-		if (userRequest.full_name() != null)
-			user.setFull_name(userRequest.full_name());
-		if (userRequest.user_name() != null)
-			user.setUser_name(userRequest.user_name());
-		if (userRequest.phone() != null)
-			user.setPhone(userRequest.phone());
-		if (userRequest.email() != null)
-			user.setEmail(userRequest.email());
-		if (userRequest.user_password() != null)
-			user.setUser_password(userRequest.user_password());
-		userService.saveDetails(user);
-		return ResponseEntity.ok(user);
-	}
-	*/
+
 
 	@DeleteMapping(value = "/admin/delete/{id}")
 	public ResponseEntity<?> deleteUser(@PathVariable int id) {
@@ -167,12 +93,9 @@ public class UserController {
 				.findFirst()
 				.orElse("USER");
 		// Trả về JSON với các trường username và role
-		CustomDetails customDetails = (CustomDetails) authentication.getPrincipal();
-		int hotelId = customDetails.getHotelId();
 		return ResponseEntity.ok(new HashMap<String,Object>() {{
 			put("username", username);
 			put("role", role);
-			put("hotelId",hotelId);
 		}});
 	}
 	
@@ -194,37 +117,6 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("Hello receptionist!");
 	}
 
-	/*
-	@GetMapping(value = "/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest userLoginRequest, HttpSession session, Model model) {
-		// Thực hiện xác thực người dùng và trả về kết quả
-		User user = userRepo.findByUserName(userLoginRequest.user_name());
-		if (user != null) {
-			if (user.getUser_password().equals(userLoginRequest.user_password())) {
-				session.setAttribute("user", userLoginRequest.user_name());
-				return ResponseEntity.status(HttpStatus.OK).body("Đăng nhập thành công");
-			}
-
-		}
-		model.addAttribute("error", "Invalid User name or password");
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tên người dùng hoặc mật khẩu không đúng");
-	}
-	
-	*/
-
-//    @GetMapping("/logout")
-//    public ResponseEntity<String> logout() {
-//    	System.out.println("goi logout");
-//        try {
-//            // Xóa thông tin xác thực khỏi SecurityContextHolder
-//            SecurityContextHolder.clearContext();
-//            // Đăng xuất thành công, trả về mã trạng thái 200 OK
-//            return ResponseEntity.ok("Đăng xuất thành công!");
-//        } catch (Exception e) {
-//            // Xảy ra lỗi khi đăng xuất, trả về mã trạng thái 500 và thông báo lỗi
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi đăng xuất: " + e.getMessage());
-//        }
-//    }
 	public static class ValidationRequest {
 		private String validationCode;
 		private User user;

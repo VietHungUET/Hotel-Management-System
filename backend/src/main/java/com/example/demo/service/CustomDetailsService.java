@@ -1,26 +1,26 @@
 package com.example.demo.service;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
+// import com.example.demo.repository.HotelRepository; // Xóa import này nếu không dùng nữa
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.entity.UserAccount;
-
 @Service
+@RequiredArgsConstructor
 public class CustomDetailsService implements UserDetailsService {
 
-    @Autowired
-    UserAccountRepository useracRepo;
+    private final UserRepository userRepository;
+
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        Optional<UserAccount> userac = useracRepo.findByUserName(s);
-        userac.orElseThrow(() -> new UsernameNotFoundException("Not found: " + s));
-        return userac.map(CustomDetails::new).get();
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        
+        return new CustomDetails(user);
     }
 }
