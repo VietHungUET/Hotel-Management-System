@@ -107,9 +107,29 @@ VALUES
 -- Set sequence value for guest
 SELECT setval(pg_get_serial_sequence('guest', 'guest_id'), 35);
 
+CREATE TABLE users (
+   user_id INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- user_id is now the Primary Key AND Foreign Key to hotel_id
+   user_name VARCHAR(255) UNIQUE DEFAULT NULL, -- user_name must be unique for login
+   email VARCHAR(255) DEFAULT NULL,
+   full_name VARCHAR(255) DEFAULT NULL,
+   phone VARCHAR(255) DEFAULT NULL,
+   user_password VARCHAR(255) DEFAULT NULL,
+   role VARCHAR(50) NOT NULL CHECK (role IN ('user','admin')),
+);
+INSERT INTO users (user_id, user_name, email, full_name, phone, user_password, role)
+VALUES
+(1, 'system_admin', 'admin@example.com', 'System Administrator', '000-000-0000', 'admin_pass_hashed', 'admin'),
+(2, 'hotel_owner_1', 'owner1@example.com', 'Nguyen Van A', '111-222-3333', 'owner1_pass_hashed', 'user'),
+(3, 'hotel_owner_2', 'owner2@example.com', 'Tran Thi B', '444-555-6666', 'owner2_pass_hashed', 'user'),
+(4, 'hotel_owner_3', 'owner3@example.com', 'Le Van C', '777-888-9999', 'owner3_pass_hashed', 'user'),
+(5, 'hotel_owner_4', 'owner4@example.com', 'Pham Thi D', '123-987-6543', 'owner4_pass_hashed', 'user'),
+(6, 'hotel_owner_5', 'owner5@example.com', 'Hoang Van E', '321-654-9870', 'owner5_pass_hashed', 'user');
+
+
+
 -- Create table: hotel
 CREATE TABLE hotel (
-  hotel_id int NOT NULL GENERATED ALWAYS AS IDENTITY,
+  hotel_id int NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   address varchar(255) DEFAULT NULL,
   name varchar(255) DEFAULT NULL,
   phone varchar(255) DEFAULT NULL,
@@ -117,39 +137,21 @@ CREATE TABLE hotel (
   checkout_time varchar(255) DEFAULT NULL,
   email varchar(255) DEFAULT NULL,
   star int DEFAULT NULL,
-  PRIMARY KEY (hotel_id)
+  user_id INT UNIQUE,
+  CONSTRAINT fk_hotel_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 -- Insert data into hotel
-INSERT INTO hotel (hotel_id, address, name, phone, checkin_time, checkout_time, email, star)
+INSERT INTO hotel (hotel_id, address, name, phone, checkin_time, checkout_time, email, star,user_id)
 OVERRIDING SYSTEM VALUE
 VALUES
-(1, '789 Broadway Ave, Metropolis', 'Grand Plaza Hotel', '123-456-7890', '14:00', '12:00', 'info@grandplazahotel.com', 5),
-(2, '101 Riverfront Dr, Riverside', 'Riverside Lodge', '987-654-3210', '15:00', '11:00', 'reservations@riversidelodge.com', 4),
-(3, '456 Mountain Rd, Hilltop', 'Mountain View Inn', '555-123-4567', '13:00', '10:00', 'info@mountainviewinn.com', 3),
-(5, '123 Main St, Lakeside', 'Lakeside Resort', '555-111-2222', '14:00', '12:00', 'info@lakesideresort.com', 4),
-(6, '789 Ocean Blvd, Seaside', 'Seaside Inn', '444-333-2222', '15:00', '11:00', 'reservations@seasideinn.com', 3),
-(7, '321 Forest Ave, Woodland', 'Woodland Retreat', '777-888-9999', '13:00', '10:00', 'info@woodlandretreat.com', 3),
-(8, '555 Sunset Dr, Sunset', 'Sunset Sands', '666-555-4444', '14:30', '12:30', 'hello@sunsetsands.com', 4),
-(9, '987 Lakeview Rd, Lakeside', 'Lakeview Lodge', '333-222-1111', '16:00', '11:00', 'welcome@lakeviewlodge.com', 4),
-(10, '456 Hilltop Ave, Hilltown', 'Hilltown Hotel', '999-888-7777', '14:00', '12:00', 'info@hilltownhotel.com', 3),
-(11, '777 Valley Dr, Valleyview', 'Valley Vista Inn', '222-333-4444', '15:00', '11:30', 'reservations@valleyvistainn.com', 3),
-(12, '888 River Rd, Riverside', 'Riverside Resort', '111-222-3333', '13:00', '10:00', 'info@riversideresort.com', 4),
-(13, '444 Summit Ave, Summit', 'Summit Suites', '777-666-5555', '12:00', '10:00', 'welcome@summitsuites.com', 5),
-(14, '555 Forest Rd, Forestville', 'Forest View Hotel', '333-444-5555', '14:00', '12:00', 'info@forestviewhotel.com', 3),
-(15, '222 Mountain View, Mountainville', 'Mountain Peak Lodge', '888-999-0000', '15:00', '11:00', 'reservations@mountainpeaklodge.com', 4),
-(16, '123 Pine St, Pinewood', 'Pinewood Retreat', '555-666-7777', '13:00', '10:00', 'hello@pinewoodretreat.com', 3),
-(17, '999 Maple Dr, Maplewood', 'Maplewood Manor', '222-111-0000', '14:00', '12:00', 'info@maplewoodmanor.com', 4),
-(18, '777 Lakeside Ave, Lakeside', 'Lakeside Lagoon', '444-555-6666', '14:30', '12:30', 'welcome@lakesidelagoon.com', 4),
-(19, '111 Bayview Blvd, Bayville', 'Bayview Beach Resort', '999-000-1111', '16:00', '11:00', 'info@bayviewbeachresort.com', 3),
-(20, '222 Harbor Dr, Harborview', 'Harborview Haven', '666-777-8888', '15:00', '11:30', 'reservations@harborviewhaven.com', 3),
-(21, '333 Oceanfront Rd, Oceanview', 'Oceanview Oasis', '777-888-9999', '13:00', '10:00', 'info@oceanviewoasis.com', 4),
-(22, '777 Hillside Ave, Hillside', 'Hillside Heights', '444-333-2222', '12:00', '10:00', 'hello@hillsideheights.com', 5),
-(23, '888 Sunrise Dr, Sunrise', 'Sunrise Sanctuary', '111-222-3333', '14:00', '12:00', 'info@sunrisesanctuary.com', 4),
-(24, '555 Meadow Ln, Meadowview', 'Meadowview Mansion', '666-555-4444', '15:00', '11:00', 'reservations@meadowviewmansion.com', 5);
-
+(1, '789 Broadway Ave, Metropolis', 'Grand Plaza Hotel', '123-456-7890', '14:00', '12:00', 'info@grandplazahotel.com', 5,2),
+(2, '101 Riverfront Dr, Riverside', 'Riverside Lodge', '987-654-3210', '15:00', '11:00', 'reservations@riversidelodge.com', 4,3),
+(3, '456 Mountain Rd, Hilltop', 'Mountain View Inn', '555-123-4567', '13:00', '10:00', 'info@mountainviewinn.com', 3,4),
+(5, '123 Main St, Lakeside', 'Lakeside Resort', '555-111-2222', '14:00', '12:00', 'info@lakesideresort.com', 4,5),
+(6, '789 Ocean Blvd, Seaside', 'Seaside Inn', '444-333-2222', '15:00', '11:00', 'reservations@seasideinn.com', 3,6);
 -- Set sequence value for hotel
-SELECT setval(pg_get_serial_sequence('hotel', 'hotel_id'), 25);
+SELECT setval(pg_get_serial_sequence('hotel', 'hotel_id'), 7);
 
 -- Create table: payment
 CREATE TABLE payment (
@@ -291,25 +293,18 @@ VALUES
 SELECT setval(pg_get_serial_sequence('staff', 'staff_id'), 6);
 
 -- Create table: app_user (renamed from "user" to avoid reserved keyword)
-CREATE TABLE users (
-  hotelid int NOT NULL GENERATED ALWAYS AS IDENTITY,
-  email varchar(255) DEFAULT NULL,
-  full_name varchar(255) DEFAULT NULL,
-  phone varchar(255) DEFAULT NULL,
-  user_name varchar(255) DEFAULT NULL,
-  user_password varchar(255) DEFAULT NULL,
-  PRIMARY KEY (hotelid)
-);
+--CREATE TABLE users (
+--   user_id INT NOT NULL, -- user_id is now the Primary Key AND Foreign Key to hotel_id
+--   user_name VARCHAR(255) UNIQUE DEFAULT NULL, -- user_name must be unique for login
+--   email VARCHAR(255) DEFAULT NULL,
+--   full_name VARCHAR(255) DEFAULT NULL,
+--   phone VARCHAR(255) DEFAULT NULL,
+--   user_password VARCHAR(255) DEFAULT NULL,
+--   role VARCHAR(50) NOT NULL CHECK (role IN ('user','admin')),
+--   PRIMARY KEY (user_id)
+--);
 
--- Create table: user_account
-CREATE TABLE user_account (
-  user_name varchar(255) NOT NULL,
-  active boolean DEFAULT NULL,
-  hotelid int DEFAULT NULL,
-  password varchar(255) DEFAULT NULL,
-  role varchar(255) DEFAULT NULL,
-  PRIMARY KEY (user_name)
-);
+
 
 ---- Create table: user_session
 --CREATE TABLE user_session (
