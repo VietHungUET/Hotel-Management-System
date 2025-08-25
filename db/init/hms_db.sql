@@ -114,7 +114,7 @@ CREATE TABLE users (
    full_name VARCHAR(255) DEFAULT NULL,
    phone VARCHAR(255) DEFAULT NULL,
    user_password VARCHAR(255) DEFAULT NULL,
-   role VARCHAR(50) NOT NULL CHECK (role IN ('user','admin')),
+   role VARCHAR(50) NOT NULL CHECK (role IN ('user','admin'))
 );
 INSERT INTO users (user_id, user_name, email, full_name, phone, user_password, role)
 VALUES
