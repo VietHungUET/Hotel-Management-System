@@ -1,122 +1,140 @@
 package com.example.demo.service;
 
-import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
-
-import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
+import com.example.demo.exception.AlreadyExistsException;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService{
+public class UserService implements IUserService {
 
     private final UserRepository userRepo;
-//    private final UserAccountRepository userAccRepo;
     private final EmailSenderService emailService;
 
-    public boolean check_existed(String userName) {
+    @Override
+    public boolean checkExisted(String userName) {
         return userRepo.findByUserName(userName).isPresent();
     }
 
+    @Override
     public String initiateRegistration(User user) {
-        if (check_existed(user.getUser_name())) {
-            throw new RuntimeException("Username already exists");
+        if (checkExisted(user.getUserName())) {
+            throw new AlreadyExistsException("User", "username", user.getUserName());
         }
-        String uuid = emailService.sendAuthenticationEmail(user.getEmail());
-        return uuid;
+        return emailService.sendAuthenticationEmail(user.getEmail());
     }
 
+    @Override
     public User completeRegistration(String uuid, User user) {
-        // Giả định validateCode kiểm tra uuid (cần thêm bảng hoặc cache để lưu uuid)
-        if (emailService.validateCode(uuid)) { // Cần triển khai validateCode trong EmailSenderService
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String encryptedPass = encoder.encode(user.getUser_password());
-            user.setUser_password(encryptedPass);
-
-            if (user.getRole() == null || user.getRole().isEmpty()) {
-                user.setRole("user"); // Đặt ROLE mặc định là "USER"
-            }
-
-            User savedUser = userRepo.save(user);
-            return savedUser;
+        if (!emailService.validateCode(uuid)) {
+            throw new BadRequestException("Invalid validation code");
         }
-        throw new RuntimeException("Invalid validation code");
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encryptedPass = encoder.encode(user.getUserPassword());
+        user.setUserPassword(encryptedPass);
+
+        // Normalize role to uppercase
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        } else {
+            user.setRole(user.getRole().toUpperCase());
+        }
+
+        return userRepo.save(user);
     }
 
+    @Override
     public User findByUsername(String username) {
-        Optional<User> user = userRepo.findByUserName(username);
-        return user.orElse(null); // Trả về null nếu không tìm thấy
+        return userRepo.findByUserName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
-
-//    public User saveDetails(User user) {
-//        BCryptPasswordEncoder crypt = new BCryptPasswordEncoder();
-//        String encryptedPass = crypt.encode(user.getUser_password());
-//        user.setUser_password(encryptedPass);
-//        UserAccount acc = new UserAccount(user.getUser_name(), user.getUser_password(), true, "MANAGER", user.getId());
-//        userAccRepo.save(acc);
-//        return userRepo.save(user);
-//    }
-
+    @Override
     public void removeUserById(int id) {
+        if (!userRepo.existsById(id)) {
+            throw new ResourceNotFoundException("User", id);
+        }
         userRepo.deleteById(id);
     }
 
+    @Override
     public User getUserById(int id) {
-        return userRepo.getReferenceById(id);
+        return userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
+    @Override
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    @Override
     public User addAccount(String userName, String password, String role, String email, String fullName, String phone) {
-        if (check_existed(userName)) {
-            throw new RuntimeException("Username already exists");
+        if (checkExisted(userName)) {
+            throw new AlreadyExistsException("User", "username", userName);
         }
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encryptedPass = encoder.encode(password);
 
         User newUser = new User();
-        newUser.setUser_name(userName);
-        newUser.setUser_password(encryptedPass);
+        newUser.setUserName(userName);
+        newUser.setUserPassword(encryptedPass);
         newUser.setRole(role);
         newUser.setEmail(email);
-        newUser.setFull_name(fullName);
+        newUser.setFullName(fullName);
         newUser.setPhone(phone);
 
         return userRepo.save(newUser);
     }
 
+    @Override
     public User updateUser(int id, User user) {
-        User existingUser = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User existingUser = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
 
-        if (user.getFull_name() != null) existingUser.setFull_name(user.getFull_name());
-        if (user.getPhone() != null) existingUser.setPhone(user.getPhone());
-        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
-        if (user.getUser_password() != null) {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            existingUser.setUser_password(encoder.encode(user.getUser_password()));
+        if (user.getFullName() != null) {
+            existingUser.setFullName(user.getFullName());
         }
+        if (user.getPhone() != null) {
+            existingUser.setPhone(user.getPhone());
+        }
+        if (user.getEmail() != null) {
+            existingUser.setEmail(user.getEmail());
+        }
+        if (user.getUserPassword() != null) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            existingUser.setUserPassword(encoder.encode(user.getUserPassword()));
+        }
+
         return userRepo.save(existingUser);
     }
-    public record UserRequest(String full_name, String user_name, String phone, String email, String user_password) {
 
+    @Override
+    public UserDto convertToDto(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getFullName(),
+                user.getUserName(),
+                user.getPhone(),
+                user.getEmail(),
+                user.getRole());
     }
 
-    public record LoginRequest(String user_name, String user_password) {
-
+    @Override
+    public List<UserDto> getConvertedUsers(List<User> users) {
+        return users.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
-
-    public record UserInput(String validationCode) {
-
-    }
-
-    public record AddAccount(String user_name, String user_password, boolean active, String role) {
-
-    }
-
-
 }
