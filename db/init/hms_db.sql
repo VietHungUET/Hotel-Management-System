@@ -114,16 +114,19 @@ CREATE TABLE users (
    full_name VARCHAR(255) DEFAULT NULL,
    phone VARCHAR(255) DEFAULT NULL,
    user_password VARCHAR(255) DEFAULT NULL,
-   role VARCHAR(50) NOT NULL CHECK (role IN ('user','admin'))
+   role VARCHAR(50) NOT NULL CHECK (role IN ('USER','ADMIN'))
 );
 INSERT INTO users (user_id, user_name, email, full_name, phone, user_password, role)
+OVERRIDING SYSTEM VALUE
 VALUES
-(1, 'system_admin', 'admin@example.com', 'System Administrator', '000-000-0000', 'admin_pass_hashed', 'admin'),
-(2, 'hotel_owner_1', 'owner1@example.com', 'Nguyen Van A', '111-222-3333', 'owner1_pass_hashed', 'user'),
-(3, 'hotel_owner_2', 'owner2@example.com', 'Tran Thi B', '444-555-6666', 'owner2_pass_hashed', 'user'),
-(4, 'hotel_owner_3', 'owner3@example.com', 'Le Van C', '777-888-9999', 'owner3_pass_hashed', 'user'),
-(5, 'hotel_owner_4', 'owner4@example.com', 'Pham Thi D', '123-987-6543', 'owner4_pass_hashed', 'user'),
-(6, 'hotel_owner_5', 'owner5@example.com', 'Hoang Van E', '321-654-9870', 'owner5_pass_hashed', 'user');
+(1, 'admin', 'admin@example.com', 'System Administrator', '000-000-0000', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'ADMIN'),
+(2, 'hotel_owner_1', 'owner1@example.com', 'Nguyen Van A', '111-222-3333', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'USER'),
+(3, 'hotel_owner_2', 'owner2@example.com', 'Tran Thi B', '444-555-6666', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'USER'),
+(4, 'hotel_owner_3', 'owner3@example.com', 'Le Van C', '777-888-9999', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'USER'),
+(5, 'hotel_owner_4', 'owner4@example.com', 'Pham Thi D', '123-987-6543', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'USER'),
+(6, 'hotel_owner_5', 'owner5@example.com', 'Hoang Van E', '321-654-9870', '$2a$10$K1qqsY05fLkBdzV6vuZgSuX5lhdW1k.D/FZPXHwbA2FWqN/kHJRqO', 'USER');
+-- Set sequence value for users
+SELECT setval(pg_get_serial_sequence('users', 'user_id'), 6);
 
 
 
