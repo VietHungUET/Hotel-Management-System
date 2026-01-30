@@ -15,7 +15,10 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   function (config) {
-    // Do something before request is sent
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   function (error) {
@@ -27,8 +30,12 @@ axiosClient.interceptors.request.use(
 // Add a response interceptor
 axiosClient.interceptors.response.use(
   function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
+    // Backend now wraps responses in ApiResponse: { message, data }
+    // Automatically unwrap to just the data field
+    if (response.data && response.data.data !== undefined) {
+      return response.data.data;
+    }
+    // Fallback for responses without ApiResponse wrapper
     return response.data;
   },
   function (error) {

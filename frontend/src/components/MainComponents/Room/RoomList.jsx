@@ -116,7 +116,7 @@ function RoomList({ selectedType, selectedStatus, typeList, session }) {
     useEffect(() => {
       const fetchRooms = async () => {
         try {
-          const roomList = await userApi.getAll({ hotelId: session?.HotelId }); // Truyền hotelId từ session
+          const roomList = await userApi.getAll(); // Truyền hotelId từ session
           const rowsWithId = roomList.map((room, index) => ({
             ...room,
             id: index,
