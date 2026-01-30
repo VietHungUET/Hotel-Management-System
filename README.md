@@ -1,6 +1,7 @@
 # Hotel Management System (HMS)
 
 A web application for managing hotel operations, built with Spring Boot and React.
+![Uploading image.png…]()
 
 ## Technologies Used
 
