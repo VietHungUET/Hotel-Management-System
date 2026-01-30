@@ -1,38 +1,43 @@
 package com.example.demo.controller;
 
+import com.example.demo.response.ApiResponse;
 import com.example.demo.entity.RoomTypeEntity;
 import com.example.demo.service.RoomTypeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/roomType")
+@RequestMapping("/api/v1/room-types")
 @RequiredArgsConstructor
 public class RoomTypeController {
 
     private final RoomTypeService roomTypeService;
 
-    @GetMapping(path = "/getAll")
-    public List<RoomTypeEntity> getAllRoomType() {
-        return roomTypeService.getAllRoomType();
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllRoomTypes() {
+        List<RoomTypeEntity> roomTypes = roomTypeService.getAllRoomType();
+        return ResponseEntity.ok(new ApiResponse("Room types retrieved successfully", roomTypes));
     }
 
-    @PostMapping(path = "/add")
-    public RoomTypeEntity addRoomType(@RequestBody RoomTypeEntity roomType) {
-        return roomTypeService.saveRoomType(roomType);
+    @PostMapping
+    public ResponseEntity<ApiResponse> createRoomType(@RequestBody RoomTypeEntity roomType) {
+        RoomTypeEntity saved = roomTypeService.saveRoomType(roomType);
+        return ResponseEntity.ok(new ApiResponse("Room type created successfully", saved));
     }
 
-    @PutMapping(path = "/update/{id}")
-    public RoomTypeEntity updateRoomType(@PathVariable Integer id, @RequestBody RoomTypeEntity roomType) {
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateRoomType(@PathVariable Integer id, @RequestBody RoomTypeEntity roomType) {
         roomType.setTypeId(id);
-        return roomTypeService.updateRoomType(roomType);
+        RoomTypeEntity updated = roomTypeService.saveRoomType(roomType);
+        return ResponseEntity.ok(new ApiResponse("Room type updated successfully", updated));
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public String deleteRoomType(@PathVariable Integer id) {
-        return roomTypeService.deleteRoomType(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteRoomType(@PathVariable Integer id) {
+        roomTypeService.deleteRoomType(id);
+        return ResponseEntity.ok(new ApiResponse("Room type deleted successfully", null));
     }
 }

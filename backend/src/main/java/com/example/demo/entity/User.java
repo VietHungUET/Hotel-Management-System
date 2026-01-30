@@ -1,7 +1,5 @@
 package com.example.demo.entity;
 
-import org.springframework.stereotype.Component;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,16 +8,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="users")
-@Component
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,10 +22,10 @@ public class User {
     private int id;
 
     @Column(name = "full_name")
-    private String full_name;
+    private String fullName;
 
     @Column(name = "user_name")
-    private String user_name;
+    private String userName;
 
     @Column(name = "phone")
     private String phone;
@@ -39,8 +34,8 @@ public class User {
     private String email;
 
     @Column(name = "user_password")
-    private String user_password;
+    private String userPassword;
 
-    @Column(name = "role", nullable = false) // Thêm trường 'role'
+    @Column(name = "role", nullable = false)
     private String role;
 }

@@ -1,141 +1,104 @@
 package com.example.demo.controller;
 
-import java.util.HashMap;
-
-import com.example.demo.entity.UserAccount;
-import com.example.demo.service.CustomDetails;
+import com.example.demo.request.CreateUserRequest;
+import com.example.demo.request.ValidationRequest;
+import com.example.demo.response.ApiResponse;
+import com.example.demo.dto.UserDto;
+import com.example.demo.entity.User;
+import com.example.demo.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.EmailSenderService;
-import com.example.demo.service.UserService;
-import com.example.demo.service.UserService.UserInput;
-import com.example.demo.entity.User;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
-	private final UserService userService;
+	private final IUserService userService;
 
-	@PostMapping(value="/register")
-	public ResponseEntity<?> register(@RequestBody User user) {
-		try {
-			String validationCode = userService.initiateRegistration(user);
-			return ResponseEntity.ok("Validation code sent to email. Code: " + validationCode);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@PostMapping("/register")
+	public ResponseEntity<ApiResponse> register(@RequestBody CreateUserRequest request) {
+		// Convert DTO to Entity
+		User user = new User();
+		user.setFullName(request.getFullName());
+		user.setUserName(request.getUserName());
+		user.setPhone(request.getPhone());
+		user.setEmail(request.getEmail());
+		user.setUserPassword(request.getPassword());
+		user.setRole(request.getRole());
+
+		String validationCode = userService.initiateRegistration(user);
+		return ResponseEntity.ok(new ApiResponse("Validation code sent to email", validationCode));
 	}
 
-	@PostMapping(value="/register/validation")
-	public ResponseEntity<?> validateRegistration(@RequestBody ValidationRequest request ) {
-		try {
-			User registeredUser = userService.completeRegistration(request.getValidationCode(), request.getUser());
-			return ResponseEntity.status(HttpStatus.CREATED).body("Registration successful. User ID: " + registeredUser.getId());
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		}
+	@PostMapping("/register/validate")
+	public ResponseEntity<ApiResponse> validateRegistration(@RequestBody ValidationRequest request) {
+		// Convert DTO to Entity
+		User user = new User();
+		user.setFullName(request.getUser().getFullName());
+		user.setUserName(request.getUser().getUserName());
+		user.setPhone(request.getUser().getPhone());
+		user.setEmail(request.getUser().getEmail());
+		user.setUserPassword(request.getUser().getPassword());
+		user.setRole(request.getUser().getRole());
+
+		User registeredUser = userService.completeRegistration(request.getValidationCode(), user);
+		UserDto userDto = userService.convertToDto(registeredUser);
+		return ResponseEntity.ok(new ApiResponse("Registration successful", userDto));
 	}
 
-
-
-
-//	@PostMapping(value = "/register/validation")
-//	public ResponseEntity<?> validation(@RequestBody UserInput user_input) {
-//		String input = user_input.userInput();
-//		System.out.println("user_input:" + input);
-//		if (check_valid.containsKey(input)) {
-//			User u = check_valid.get(input);
-//			check_valid.remove(input);
-//			userService.saveDetails(u);
-//			return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký tài khoản thành công");
-//		}
-//		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mã xác thực không tồn tại");
-//	}
-	
-
-	
-
-
-	@DeleteMapping(value = "/admin/delete/{id}")
-	public ResponseEntity<?> deleteUser(@PathVariable int id) {
-		try {
-			userService.removeUserById(id);
-			return ResponseEntity.ok("User deleted successfully");
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse> deleteUser(@PathVariable int id) {
+		userService.removeUserById(id);
+		return ResponseEntity.ok(new ApiResponse("User deleted successfully", null));
 	}
 
-	@GetMapping(value = "/home")
-	public ResponseEntity<?> homepage() {
+	@GetMapping
+	public ResponseEntity<ApiResponse> getAllUsers() {
+		List<User> users = userService.getAllUsers();
+		List<UserDto> userDtos = userService.getConvertedUsers(users);
+		return ResponseEntity.ok(new ApiResponse("Users retrieved successfully", userDtos));
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse> getUserById(@PathVariable int id) {
+		User user = userService.getUserById(id);
+		UserDto userDto = userService.convertToDto(user);
+		return ResponseEntity.ok(new ApiResponse("User retrieved successfully", userDto));
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<ApiResponse> updateUser(@PathVariable int id, @RequestBody User user) {
+		User updatedUser = userService.updateUser(id, user);
+		UserDto userDto = userService.convertToDto(updatedUser);
+		return ResponseEntity.ok(new ApiResponse("User updated successfully", userDto));
+	}
+
+	@GetMapping("/me")
+	public ResponseEntity<ApiResponse> getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login to access this page");
+		if (authentication == null || !authentication.isAuthenticated() ||
+				authentication.getPrincipal().equals("anonymousUser")) {
+			return ResponseEntity.status(401).body(new ApiResponse("Please login to access this page", null));
 		}
+
 		String username = authentication.getName();
 		String role = authentication.getAuthorities().stream()
 				.map(auth -> auth.getAuthority())
 				.findFirst()
 				.orElse("USER");
-		// Trả về JSON với các trường username và role
-		return ResponseEntity.ok(new HashMap<String,Object>() {{
-			put("username", username);
-			put("role", role);
-		}});
+
+		Map<String, Object> userData = new HashMap<>();
+		userData.put("username", username);
+		userData.put("role", role);
+
+		return ResponseEntity.ok(new ApiResponse("User info retrieved successfully", userData));
 	}
-	
-	@GetMapping(value = "/admin")
-	public ResponseEntity<?> admin_notify() {
-		
-		return ResponseEntity.status(HttpStatus.OK).body("Hello admin!");
-	}
-	
-	@GetMapping(value = "/manager")
-	public ResponseEntity<?> manager_notify() {
-		
-		return ResponseEntity.status(HttpStatus.OK).body("Hello manager!");
-	}
-	
-	@GetMapping(value = "/receptionist")
-	public ResponseEntity<?> receptionist_notify() {
-		
-		return ResponseEntity.status(HttpStatus.OK).body("Hello receptionist!");
-	}
-
-	public static class ValidationRequest {
-		private String validationCode;
-		private User user;
-
-		public String getValidationCode() {
-			return validationCode;
-		}
-
-		public void setValidationCode(String validationCode) {
-			this.validationCode = validationCode;
-		}
-
-		public User getUser() {
-			return user;
-		}
-
-		public void setUser(User user) {
-			this.user = user;
-		}
-	}
-
 }

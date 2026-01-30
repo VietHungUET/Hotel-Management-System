@@ -1,114 +1,88 @@
 package com.example.demo.controller;
 
+import com.example.demo.request.UpdateBookingRequest;
+import com.example.demo.response.ApiResponse;
+import com.example.demo.dto.BookingDto;
 import com.example.demo.entity.BookingEntity;
 import com.example.demo.entity.PaymentEntity;
 import com.example.demo.entity.RoomEntity;
 import com.example.demo.entity.RoomTypeEntity;
-import com.example.demo.service.BookingService;
-import com.example.demo.service.PaymentService;
-import com.example.demo.service.RoomService;
+import com.example.demo.service.IBookingService;
+import com.example.demo.service.IPaymentService;
+import com.example.demo.service.IRoomService;
 import com.example.demo.service.RoomTypeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/bookings")
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final BookingService bookingService;
-    private final RoomService roomService;
+    private final IBookingService bookingService;
+    private final IRoomService roomService;
     private final RoomTypeService roomTypeService;
-    private final PaymentService paymentsService;
+    private final IPaymentService paymentService;
 
-    @GetMapping(path="/booking/getAll")
-    public @ResponseBody Iterable<BookingEntity> getAllBooking() {
-        return bookingService.getAllBooking();
-    }
-    //hàm này để update các infor về booking, cho trường hợp khách muốn đổi ngày checkin-checkout,
-    //hàm này chưa tính tiền ontime, sẽ có bổ sung.
-    @PostMapping(path = "/booking/update/{id}")
-    public BookingEntity updateBooking(@PathVariable int id, @RequestBody BookingEntity bookEntity) {
-        return bookingService.updateBooking(id, bookEntity);
-    }
-    @PostMapping(path = "/booking/add")
-    public BookingEntity addBooking(@RequestBody BookingEntity booking) {
-        return bookingService.addBooking(booking);
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllBooking() {
+        Iterable<BookingEntity> bookings = bookingService.getAllBooking();
+        List<BookingDto> bookingDtos = bookingService.getConvertedBookings((List<BookingEntity>) bookings);
+        return ResponseEntity.ok(new ApiResponse("Bookings retrieved successfully", bookingDtos));
     }
 
-    @GetMapping(path = "/booking/getBooking/{roomNumber}")
-    public BookingEntity getBooking(@PathVariable String roomNumber) {
-        return bookingService.getBookingByRoomNumber(roomNumber);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getBookingById(@PathVariable int id) {
+        BookingEntity booking = bookingService.getBookingById(id);
+        BookingDto bookingDto = bookingService.convertToDto(booking);
+        return ResponseEntity.ok(new ApiResponse("Booking retrieved successfully", bookingDto));
     }
 
-    @PostMapping(path = "/booking/addInforCaculate")
-    public Long addBookingInforCaculate(@RequestBody BookingEntity booking,@RequestParam int amount) {
+    @GetMapping("/room/{roomNumber}")
+    public ResponseEntity<ApiResponse> getBookingByRoomNumber(@PathVariable String roomNumber) {
+        BookingEntity booking = bookingService.getBookingByRoomNumber(roomNumber);
+        BookingDto bookingDto = bookingService.convertToDto(booking);
+        return ResponseEntity.ok(new ApiResponse("Booking retrieved successfully", bookingDto));
+    }
 
+    @PostMapping
+    public ResponseEntity<ApiResponse> addBooking(@RequestBody BookingEntity booking) {
+        BookingEntity savedBooking = bookingService.addBooking(booking);
+        BookingDto bookingDto = bookingService.convertToDto(savedBooking);
+        return ResponseEntity.ok(new ApiResponse("Booking created successfully", bookingDto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateBooking(@PathVariable int id, @RequestBody UpdateBookingRequest request) {
+        BookingEntity updatedBooking = bookingService.updateBooking(id, request);
+        BookingDto bookingDto = bookingService.convertToDto(updatedBooking);
+        return ResponseEntity.ok(new ApiResponse("Booking updated successfully", bookingDto));
+    }
+
+    @PostMapping("/calculate-price")
+    public ResponseEntity<ApiResponse> calculateBookingPrice(@RequestBody BookingEntity booking,
+            @RequestParam int amount) {
         int roomNumber = booking.getRoomNumber();
         RoomEntity room = roomService.getRoom(roomNumber);
         Integer roomTypeId = room.getTypeId();
         RoomTypeEntity roomType = roomTypeService.getRoomTypeById(roomTypeId);
-        return bookingService.addBookingInforCaculate(booking, room, roomType, amount);
+        Long price = bookingService.calculateBookingPrice(booking, room, roomType, amount);
+        return ResponseEntity.ok(new ApiResponse("Price calculated successfully", price));
     }
 
-    //hàm này để tính tiền phòng dụư kiến (chưa kể phí dịch vụ và thời gian ở thêm)
-
-    //hàm này để liệt kê ra các booking chưa thanh toán
-    @GetMapping(path = "/payments/getPaymentsPending")
-    public List<BookingEntity> getBookingWithoutPays() {
-        List<PaymentEntity> listPay = paymentsService.getAllPayments();
-        List<BookingEntity> listBooking = (List<BookingEntity>) bookingService.getAllBooking();
-        return getAllBookingPending(listPay,listBooking);
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse> getPendingBookings() {
+        List<BookingEntity> pendingBookings = bookingService.getPendingBookings();
+        List<BookingDto> bookingDtos = bookingService.getConvertedBookings(pendingBookings);
+        return ResponseEntity.ok(new ApiResponse("Pending bookings retrieved successfully", bookingDtos));
     }
 
-    private List<BookingEntity> getAllBookingPending(List<PaymentEntity> listPay, List<BookingEntity> lisBooking) {
-        List<BookingEntity> lisPendBooking = new ArrayList<>();
-        for (BookingEntity book : lisBooking) {
-            Integer bookingId = book.getBookingId();
-            boolean needAdded = true;
-            for (PaymentEntity pay : listPay) {
-                Integer bookingId_pay = pay.getBookingId();
-                if (bookingId == bookingId_pay) {
-                    needAdded = false;
-                    break;
-                }
-            }
-            if (needAdded){
-                lisPendBooking.add(book);
-            }
-        }
-        return lisPendBooking;
-    }
-
-    //hàm này dùng để đẩy các booking đã thanh toán vào payments
-    @GetMapping(path = "/payments/addPaymentsFromBooking")
-    public List<PaymentEntity> addPaymentsFromBooking(@RequestBody List<String> listBookID) {
-        List<PaymentEntity> listpay = new ArrayList<>();
-        for (String bookID : listBookID) {
-            String[] part = bookID.split("_");
-            Integer book_ID = Integer.valueOf(part[0]);
-            String MethodPayments = part[1];
-            BookingEntity book = bookingService.getBookingByID(book_ID);
-            Double Price = book.getMoney();
-            PaymentEntity payment = new PaymentEntity();
-
-            LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd"); // Định dạng chuỗi mong muốn
-            String formattedDateString = today.format(formatter);
-            payment.setPaymentDate(formattedDateString);
-            payment.setPaymentMethod(MethodPayments);
-            payment.setAmount(Price);
-            payment.setBookingId(book_ID);
-            listpay.add(payment);
-        }
-        for (PaymentEntity pay : listpay) {
-            paymentsService.saveDetailPay(pay);
-        }
-        return listpay;
+    @PostMapping("/payments/process")
+    public ResponseEntity<ApiResponse> processPaymentsFromBookings(@RequestBody List<String> bookingIds) {
+        List<PaymentEntity> payments = paymentService.processPaymentsFromBookings(bookingIds);
+        return ResponseEntity.ok(new ApiResponse("Payments processed successfully", payments));
     }
 }
