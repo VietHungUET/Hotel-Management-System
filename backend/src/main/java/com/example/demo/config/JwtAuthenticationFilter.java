@@ -29,9 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
-        // Bỏ qua xác thực JWT cho endpoint đăng nhập và đăng ký
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         if (request.getServletPath().contains("/login") || request.getServletPath().contains("/register")) {
             filterChain.doFilter(request, response);
             return;
@@ -47,17 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Trích xuất JWT từ header
         jwt = authHeader.substring(7);
-        username = jwtService.extractUsername(jwt); // Trích xuất tên người dùng từ JWT
+        username = jwtService.extractUsername(jwt);
 
-        // Nếu tên người dùng không null và chưa có thông tin xác thực trong SecurityContext
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.customDetailsService.loadUserByUsername(username);
 
-            // Kiểm tra tính hợp lệ của token
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                // Tạo đối tượng xác thực
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null, // Mật khẩu không cần thiết sau khi xác thực token
@@ -65,8 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 // Đặt chi tiết xác thực web
                 authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                        new WebAuthenticationDetailsSource().buildDetails(request));
                 // Đặt đối tượng xác thực vào SecurityContextHolder
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

@@ -1,70 +1,75 @@
 package com.example.demo.config;
 
+import com.example.demo.service.CustomDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy; // Import này
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.example.demo.service.CustomDetailsService; // Vẫn cần CustomDetailsService của bạn
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter; // Giữ lại CorsFilter nếu bạn muốn bean này
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor // Để inject JwtAuthenticationFilter
+@RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter jwtAuthFilter; // Inject JwtAuthenticationFilter
-    private final CustomDetailsService customDetailsService; // Inject CustomDetailsService thay vì tạo Bean
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final CustomDetailsService customDetailsService;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // Trả về một implement của UserDetailsService để tìm kiếm thông tin người dùng từ cơ sở dữ liệu
-        // Đã inject CustomDetailsService trực tiếp, không cần tạo bean mới ở đây
         return customDetailsService;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Bật CORS với cấu hình tùy chỉnh
-                .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF vì chúng ta dùng JWT (stateless)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/login").permitAll() // Cho phép truy cập endpoint login
-                        .requestMatchers("/register").permitAll() // Cho phép truy cập endpoint register
-                        .requestMatchers("/register/validation").permitAll() // Cho phép truy cập endpoint validation
-                        .requestMatchers("/home").permitAll() // Có thể cho phép home hoặc yêu cầu xác thực tùy ý
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN") // Sử dụng hasAuthority với vai trò đầy đủ
-                        .requestMatchers("/receptionist/**").hasAnyAuthority("ADMIN", "RECEPTIONIST")
-                        .requestMatchers("/manager/**").hasAnyAuthority("ADMIN", "MANAGER")
-                        .anyRequest().authenticated() // Tất cả các yêu cầu khác đều yêu cầu xác thực
-                )
+                        // Public endpoints
+                        .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/users/register").permitAll()
+                        .requestMatchers("/api/v1/users/register/validate").permitAll()
+
+                        // Swagger UI endpoints
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+
+                        // RoomType endpoints - ADMIN only for mutations
+                        .requestMatchers(HttpMethod.POST, "/api/v1/room-types").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/room-types/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/room-types/**").hasAuthority("ADMIN")
+
+                        // Admin only endpoints - User management
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAuthority("ADMIN")
+
+                        // All other endpoints require authentication (USER or ADMIN)
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Cấu hình không sử dụng session
-                )
-                .authenticationProvider(authenticationProvider()) // Đặt AuthenticationProvider
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT Filter trước UsernamePasswordAuthenticationFilter
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout((logout) -> logout
-                        .logoutUrl("/logout") // Định nghĩa URL để logout
+                        .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(HttpStatus.OK.value()); // Trả về 200 OK sau khi logout
+                            response.setStatus(HttpStatus.OK.value());
                         })
                         .invalidateHttpSession(false)
-                        .deleteCookies("JSESSIONID")
-                )
-        ;
+                        .deleteCookies("JSESSIONID"));
         return http.build();
     }
 
@@ -78,24 +83,9 @@ public class SecurityConfiguration {
         return new ProviderManager(authenticationProvider);
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    // Bean CorsFilter và CorsConfigurationSource vẫn giữ nguyên nếu bạn cần CORS
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost");
-        config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
     }
 
     @Bean
@@ -111,7 +101,6 @@ public class SecurityConfiguration {
         return source;
     }
 
-    // Tạo AuthenticationProvider riêng để sử dụng trong filter chain
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
