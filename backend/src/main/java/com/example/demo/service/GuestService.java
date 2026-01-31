@@ -13,11 +13,17 @@ import java.util.List;
 public class GuestService {
 
     private final GuestRepository guestRepository;
+
     public Iterable<GuestEntity> getAllGuest() {
         return guestRepository.findAll();
     }
+
     public GuestEntity saveDetails(GuestEntity guest) {
         guestRepository.save(guest);
         return guest;
+    }
+
+    public GuestEntity getGuestById(int id) {
+        return guestRepository.findById(id).orElse(null);
     }
 }
