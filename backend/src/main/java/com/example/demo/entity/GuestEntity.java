@@ -14,13 +14,15 @@ public class GuestEntity {
     @Column(name = "guest_id")
     private Integer guestId;
 
-    @Column(name = "id_number")
-    private String idNumber;
-    private String name;
-    @Column(name = "dob")
-    private Date dob;
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "last_name")
+    private String lastName;
+    @Column(name = "date_of_birth")
+    private Date dateOfBirth;
 
-    private String gender;
+    @Column(name = "address")
+    private String address;
 
     @Column(name = "email")
     private String email;

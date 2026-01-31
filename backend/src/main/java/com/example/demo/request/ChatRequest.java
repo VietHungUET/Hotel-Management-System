@@ -1,0 +1,9 @@
+package com.example.demo.request;
+
+import lombok.Data;
+
+@Data
+public class ChatRequest {
+    private String message;
+    private Integer userId;
+}
