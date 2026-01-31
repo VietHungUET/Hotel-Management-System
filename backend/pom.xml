@@ -99,6 +99,40 @@
    		    <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+		<!-- LangChain4j Core -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j</artifactId>
+			<version>0.36.2</version>
+		</dependency>
+
+		<!-- LangChain4j Spring Boot Starter -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-spring-boot-starter</artifactId>
+			<version>0.36.2</version>
+		</dependency>
+
+		<!-- Gemini Integration -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-google-ai-gemini</artifactId>
+			<version>0.36.2</version>
+		</dependency>
+
+		<!-- Embeddings -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
+			<version>0.36.2</version>
+		</dependency>
+
+		<!-- In-memory Vector Store (cho RAG) -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-embeddings</artifactId>
+			<version>0.36.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

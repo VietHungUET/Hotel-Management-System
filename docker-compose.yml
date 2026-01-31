@@ -27,6 +27,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - EMAIL_USERNAME=${EMAIL_USERNAME}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - db
     networks:
