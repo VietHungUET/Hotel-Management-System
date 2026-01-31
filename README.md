@@ -4,6 +4,8 @@ A web application for managing hotel operations, built with Spring Boot and Reac
 
 ![alt text](image.png)
 
+![alt text](image-1.png)
+
 ## Technologies Used
 
 - **Backend**: Spring Boot

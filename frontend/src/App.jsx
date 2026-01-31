@@ -9,6 +9,8 @@ import Verification from "./pages/Login/Verification";
 import { useState, useEffect } from "react";
 import axiosClient from "./api/axiosClient";
 
+import Chatbot from "./components/Chatbot/Chatbot";
+
 const App = () => {
   const [session, setSession] = useState();
   const [loading, setLoading] = useState(true); // Thêm trạng thái loading
@@ -31,6 +33,7 @@ const App = () => {
             Username: response.data.username,
             Role: response.data.role,
             HotelId: 1,
+            UserId: response.data.userId // NOTE: assuming userId is available in response based on Chatbot needs
           });
         } else {
           setSession(null);
@@ -76,6 +79,7 @@ const App = () => {
         <Route path="/verification" element={<Verification />} />
 
       </Routes>
+      {session && <Chatbot />}
     </div>
   );
 };
