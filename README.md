@@ -4,6 +4,8 @@ A web application for managing hotel operations, built with Spring Boot and Reac
 
 ![alt text](image.png)
 
+**Room List Interface integrated with Hotel Assistant**
+
 ![alt text](image-1.png)
 
 ## Technologies Used
@@ -36,6 +38,7 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
 - Report generation
 - Tracking revenue
 - Payment
+- Chatbot
 
 ## Project Structure
  ```bash
