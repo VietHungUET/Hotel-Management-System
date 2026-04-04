@@ -2,7 +2,8 @@
 
 A web application for managing hotel operations, built with Spring Boot and React.
 
-![alt text](image.png)
+<img width="1899" height="888" alt="image" src="https://github.com/user-attachments/assets/f4d2f80a-e7f8-47ae-8c1d-0a542b7cca86" />
+
 
 **Room List Interface integrated with Hotel Assistant**
 
