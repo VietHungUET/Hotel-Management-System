@@ -15,7 +15,7 @@ public class RoomTools {
     private final RoomService roomService;
     private final HotelService hotelService;
 
-    @Tool("Get all available rooms in the hotel. Returns list of room numbers and types that are currently available for booking.")
+    @Tool("Get all available rooms for the current user's hotel. The userId parameter is already provided in the system context - use it directly without asking the user. Returns a list of room types with capacity, pricing and available room numbers.")
     public String getAvailableRooms(int userId) {
         Integer hotelId = hotelService.getHotelIdByUserId(userId);
         if (hotelId == null) {
@@ -37,7 +37,7 @@ public class RoomTools {
                 .collect(Collectors.joining("\n"));
     }
 
-    @Tool("Get detailed information about all rooms in the hotel including status, type, and pricing")
+    @Tool("Get detailed information about ALL rooms in the current user's hotel, including room number, type, status (ACTIVE/INACTIVE) and pricing. The userId parameter is already in the system context - use it directly without asking the user.")
     public String getAllRoomsInfo(int userId) {
         Integer hotelId = hotelService.getHotelIdByUserId(userId);
         if (hotelId == null) {
@@ -60,7 +60,7 @@ public class RoomTools {
                 .collect(Collectors.joining("\n"));
     }
 
-    @Tool("Count rooms by status. Returns total number of active and inactive rooms.")
+    @Tool("Count and summarize rooms by their current status (Available vs Unavailable) in the current user's hotel. The userId parameter is already in the system context - use it directly without asking the user.")
     public String countRoomsByStatus(int userId) {
         Integer hotelId = hotelService.getHotelIdByUserId(userId);
         if (hotelId == null) {

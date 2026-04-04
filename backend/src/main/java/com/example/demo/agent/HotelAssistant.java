@@ -1,5 +1,6 @@
 package com.example.demo.agent;
 
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -24,16 +25,14 @@ public interface HotelAssistant {
             5. Trả lời ngắn gọn, đúng trọng tâm
             6. Nếu cần thêm thông tin từ user, hãy hỏi rõ ràng
 
-            Khi user hỏi về:
-            - "Phòng trống" → dùng getAvailableRooms({{userId}})
-            - "Doanh thu" → dùng getRevenueByYear() hoặc getRevenueSummary()
-            - "Booking" → dùng getAllBookings() hoặc getBookingById()
-            - "Thông tin phòng" → dùng getAllRoomsInfo({{userId}})
-
             LƯU Ý QUAN TRỌNG:
             - Bạn ĐÃ CÓ `userId` từ hệ thống (biến {{userId}}).
             - Khi gọi tool cần `userId`, hãy tự động điền giá trị này vào.
             - TUYỆT ĐỐI KHÔNG hỏi lại user "Vui lòng cung cấp ID" hay "ID của bạn là gì".
             """)
-    String chat(@UserMessage String userMessage, @V("userId") int userId);
-}
+    // @MemoryId: LangChain4j dùng userId làm key để tìm memory đúng trên Redis
+    // @V("userId"): inject giá trị vào {{userId}} trong System Prompt để LLM biết truyền vào tool
+    // Hai annotation này phục vụ 2 mục đích khác nhau nhưng cùng 1 giá trị → gộp vào 1 param
+    String chat(@UserMessage String userMessage,
+                @MemoryId @V("userId") int userId);
+}

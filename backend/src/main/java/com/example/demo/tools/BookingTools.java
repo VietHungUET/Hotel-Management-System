@@ -26,7 +26,7 @@ public class BookingTools {
         return guest != null ? guest.getFirstName() + " " + guest.getLastName() : "Unknown";
     }
 
-    @Tool("Get all current bookings. Returns list of booking information including guest, room, and dates.")
+    @Tool("Get all bookings in the current hotel system. Returns a list of bookings with guest name, room number, check-in/check-out dates and total price.")
     public String getAllBookings() {
         Iterable<BookingEntity> bookingsIterable = bookingService.getAllBooking();
         List<BookingEntity> bookings = StreamSupport.stream(bookingsIterable.spliterator(), false)
@@ -44,7 +44,7 @@ public class BookingTools {
                 .collect(Collectors.joining("\n"));
     }
 
-    @Tool("Get pending bookings that haven't been checked out yet")
+    @Tool("Get bookings that have NOT been paid yet (no payment record exists). Returns booking ID, room number, guest name and expected check-out date.")
     public String getPendingBookings() {
         var pendingBookings = bookingService.getPendingBookings();
 
@@ -56,13 +56,12 @@ public class BookingTools {
                 .map(booking -> String.format("Booking #%d - Room: %d, Guest: %s, Check-out: %s",
                         booking.getBookingId(),
                         booking.getRoomNumber(),
-                        getGuestName(booking.getGuestId()), // NOTE: this was referencing existing code, but wait.
-                                                            // bookingId? No, it should be guestId.
+                        getGuestName(booking.getGuestId()),
                         booking.getCheckoutDate()))
                 .collect(Collectors.joining("\n"));
     }
 
-    @Tool("Get booking information by booking ID")
+    @Tool("Get full details of a specific booking by its booking ID. Use this when the user asks about a specific booking or mentions a booking number. The bookingId parameter must be taken from the user's message (e.g. 'booking #5').")
     public String getBookingById(int bookingId) {
         try {
             var booking = bookingService.getBookingById(bookingId);

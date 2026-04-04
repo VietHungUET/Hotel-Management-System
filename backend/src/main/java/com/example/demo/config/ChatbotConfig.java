@@ -4,6 +4,7 @@ import com.example.demo.agent.HotelAssistant;
 import com.example.demo.tools.RoomTools;
 import com.example.demo.tools.BookingTools;
 import com.example.demo.tools.RevenueTools;
+import com.example.demo.service.RedisChatMemoryStore;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.AiServices;
@@ -19,13 +20,18 @@ public class ChatbotConfig {
     private final RoomTools roomTools;
     private final BookingTools bookingTools;
     private final RevenueTools revenueTools;
+    private final RedisChatMemoryStore redisChatMemoryStore;
 
     @Bean
     public HotelAssistant hotelAssistant() {
         return AiServices.builder(HotelAssistant.class)
                 .chatLanguageModel(geminiChatModel)
                 .tools(roomTools, bookingTools, revenueTools)
-                .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
+                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder()
+                        .id(memoryId)
+                        .maxMessages(20)
+                        .chatMemoryStore(redisChatMemoryStore)
+                        .build())
                 .build();
     }
 }
