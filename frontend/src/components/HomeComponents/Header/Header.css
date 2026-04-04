@@ -22,7 +22,7 @@
 }
 
 .header-contents {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
     width: 100%;
     height: 100%;
     position: absolute;
@@ -39,18 +39,18 @@
 
 .header-contents h2 {
     font-weight: 500;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: max(5.0vw, 24px);
 }
 
 .header-contents p {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 1.5vw;
     color: #e5e5e5;
 }
 
 .header-contents button {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
     margin: 20px;
     border: none;
     color: #747474;

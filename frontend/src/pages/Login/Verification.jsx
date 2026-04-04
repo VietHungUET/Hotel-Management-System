@@ -14,7 +14,7 @@ const Verification = () => {
     e.preventDefault();
     try {
        const pendingUser = JSON.parse(localStorage.getItem("pendingUser")) || {};
-            if (!pendingUser.user_name) {
+            if (!pendingUser.userName) {
               throw new Error("User information not found. Please register again.");
             }
       console.log(verificationCode);

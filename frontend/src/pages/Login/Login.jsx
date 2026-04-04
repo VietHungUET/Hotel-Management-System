@@ -59,9 +59,9 @@ const Login = ({ session, setSession }) => {
             const response = await userApi.getSignUp({ username, password, email, fullname, value });
             console.log("response:", response);
             const pendingUser = {
-                user_name: username,
-                user_password: password,
-                full_name: fullname,
+                userName: username,
+                password: password,
+                fullName: fullname,
                 email,
                 phone: value
             };
