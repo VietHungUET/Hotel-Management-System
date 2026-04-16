@@ -13,11 +13,11 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingDto {
-    private Integer bookingId;
-    private Integer guestId;
-    private Integer roomNumber;
-    private Date checkinDate;
-    private Date checkoutDate;
-    private Double money;
-    private String guestNotes;
+        private Integer bookingId;
+        private Integer guestId;
+        private Integer roomNumber;
+        private Date checkinDate;
+        private Date checkoutDate;
+        private Double money;
+        private String guestNotes;
 }

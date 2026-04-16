@@ -48,11 +48,11 @@ public class RevenueTools {
 
         return paymentService.getConvertedPayments(payments).stream()
                 .map(payment -> String.format("Payment #%d - Booking: %d, Amount: %.0f VND, Date: %s, Method: %s",
-                        payment.getPaymentId(),
-                        payment.getBookingId(),
-                        payment.getAmount(),
-                        payment.getPaymentDate(),
-                        payment.getPaymentMethod()))
+                        payment.paymentId(),
+                        payment.bookingId(),
+                        payment.amount(),
+                        payment.paymentDate(),
+                        payment.paymentMethod()))
                 .collect(Collectors.joining("\n"));
     }
 
