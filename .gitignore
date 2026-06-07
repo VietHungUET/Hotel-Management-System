@@ -33,3 +33,5 @@ build/
 .vscode/
 .env
 .idea
+AGENTS.md
+docs
