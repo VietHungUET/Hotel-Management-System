@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/chatbot")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class ChatbotController {
 
     private final ChatbotService chatbotService;
@@ -31,10 +30,5 @@ public class ChatbotController {
         );
         
         return ResponseEntity.ok(new ApiResponse("Success", response));
-    }
-
-    @GetMapping("/health")
-    public ResponseEntity<ApiResponse> health() {
-        return ResponseEntity.ok(new ApiResponse("Chatbot is running", null));
     }
 }
