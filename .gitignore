@@ -35,3 +35,16 @@ build/
 .idea
 AGENTS.md
 docs
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+*.tfplan
+cloud-sql-proxy.exe
+.firebase/
+firebase-debug.log
+hms-cloud.sql

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "gen-lang-client-0808562477"
+  },
+  "targets": {
+    "gen-lang-client-0808562477": {
+      "hosting": {
+        "hms-frontend": [
+          "16-f0df1"
+        ]
+      }
+    }
+  }
+}
