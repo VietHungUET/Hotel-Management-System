@@ -27,10 +27,12 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
    DB_USERNAME=your_database_username
    DB_PASSWORD=your_database_password
    EMAIL_USERNAME=your_email_username
-   EMAIL_PASSWORD=your_email_password  
+   EMAIL_PASSWORD=your_email_password
+   ```
 5. Run the application:
    ```bash
    docker-compose up --build
+   ```
 
 ## Features
 - Room type management
@@ -41,14 +43,46 @@ To run the project, ensure you have Docker and Docker Compose installed. Then, f
 - Payment
 - Chatbot
 
+## Google Cloud Deployment
+
+This project can also be deployed as a cloud-native application on Google Cloud Platform.
+
+### Cloud Architecture
+
+
+
+
+
+
+### GCP Services
+
+- **Firebase Hosting**: hosts the React frontend.
+- **Cloud Run**: runs the Spring Boot backend container.
+- **Cloud SQL for PostgreSQL**: stores hotel management relational data.
+- **Firestore**: stores temporary registration codes and chatbot memory for scalable cloud state.
+- **Secret Manager**: stores sensitive runtime configuration.
+- **Artifact Registry**: stores backend Docker images.
+- **Cloud Logging**: centralizes backend logs and request logs.
+- **Terraform**: provisions GCP infrastructure under `infra/terraform`.
+- **GitHub Actions**: builds and deploys backend/frontend on pushes to `main`.
+
+
 ## Project Structure
- ```bash
+```text
 Hotel-Management-System/
-├── backend/                 # Backend code (Spring Boot)
-├── db/                      # Database-related files
-│   └── init/                # Database initialization scripts
-│       └── hms_db.sql       # SQL script for database setup
-├── frontend/                # Frontend code (React)
-│  
-├── .env                     # Environment configuration file
-└── docker-compose.yml       # Docker Compose configuration file
+|-- backend/                  # Spring Boot backend
+|-- frontend/                 # React frontend
+|-- db/
+|   `-- init/
+|       `-- hms_db.sql        # PostgreSQL schema and seed data
+|-- docs/
+|   `-- cloud-native/         # Cloud-native migration notes
+|-- infra/
+|   `-- terraform/            # GCP infrastructure as code
+|-- .github/
+|   `-- workflows/            # GitHub Actions CI/CD workflows
+|-- docker-compose.yml        # Local Docker Compose stack
+|-- firebase.json             # Firebase Hosting configuration
+|-- .firebaserc               # Firebase project mapping
+`-- README.md
+```
