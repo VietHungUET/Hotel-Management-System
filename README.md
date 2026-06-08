@@ -49,10 +49,7 @@ This project can also be deployed as a cloud-native application on Google Cloud 
 
 ### Cloud Architecture
 
-
-
-
-
+<img width="1024" height="576" alt="image" src="https://github.com/user-attachments/assets/d1e5dd80-b089-461b-aef0-500f2c428f16" />
 
 ### GCP Services
 
