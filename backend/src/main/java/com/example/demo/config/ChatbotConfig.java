@@ -4,10 +4,10 @@ import com.example.demo.agent.HotelAssistant;
 import com.example.demo.tools.RoomTools;
 import com.example.demo.tools.BookingTools;
 import com.example.demo.tools.RevenueTools;
-import com.example.demo.service.RedisChatMemoryStore;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ public class ChatbotConfig {
     private final RoomTools roomTools;
     private final BookingTools bookingTools;
     private final RevenueTools revenueTools;
-    private final RedisChatMemoryStore redisChatMemoryStore;
+    private final ChatMemoryStore chatMemoryStore;
 
     @Bean
     public HotelAssistant hotelAssistant() {
@@ -30,7 +30,7 @@ public class ChatbotConfig {
                 .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder()
                         .id(memoryId)
                         .maxMessages(20)
-                        .chatMemoryStore(redisChatMemoryStore)
+                        .chatMemoryStore(chatMemoryStore)
                         .build())
                 .build();
     }
